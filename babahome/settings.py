@@ -24,7 +24,7 @@ SECRET_KEY = 'django-insecure-q2#xvi%d*p%!-aqqkx3hisuvp=w!3q1eyyeeu-=&fff!sa(aqy
 
 # SECURITY WARNING: don't run with debug turned on in production!
 #TEST FOR AZURE PROD
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = []
 
 
