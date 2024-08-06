@@ -40,8 +40,16 @@ INSTALLED_APPS = [
     'preconstruction',
     'rest_framework',
     'drf_yasg',
+    'accounts'
 
 ]
+
+#NSB Add
+AUTH_USER_MODEL = "accounts.User"
+#Customize Garne errors
+REST_FRAMEWORK = {
+    "NON_FIELD_ERRORS_KEY": "errors"}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

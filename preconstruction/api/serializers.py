@@ -23,8 +23,8 @@ class DeveloperSerializer(serializers.ModelSerializer):
 
 class PreConstructionSerializer(serializers.ModelSerializer):
     images = PreConstructionImageSerializer(many=True, required=False)
-    developer = serializers.PrimaryKeyRelatedField(queryset=Developer.objects.all())
-    city = serializers.PrimaryKeyRelatedField(queryset=City.objects.all())
+    developer = serializers.PrimaryKeyRelatedField(queryset=Developer.objects.all(), required=True)
+    city = serializers.PrimaryKeyRelatedField(queryset=City.objects.all(), required=True)
 
     class Meta:
         model = PreConstruction
@@ -32,18 +32,13 @@ class PreConstructionSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         images_data = validated_data.pop('images', [])
-        developer_data = validated_data.pop('developer', None)
-        city_data = validated_data.pop('city', None)
+        developer = validated_data.pop('developer', None)
+        city = validated_data.pop('city', None)
 
-        if developer_data:
-            developer, _ = Developer.objects.get_or_create(**developer_data)
-            validated_data['developer'] = developer
+        if not developer or not city:
+            raise serializers.ValidationError("Developer and City are required.")
 
-        if city_data:
-            city, _ = City.objects.get_or_create(**city_data)
-            validated_data['city'] = city
-
-        preconstruction = PreConstruction.objects.create(**validated_data)
+        preconstruction = PreConstruction.objects.create(developer=developer, city=city, **validated_data)
 
         for image_data in images_data:
             PreConstructionImage.objects.create(preconstructionImage=preconstruction, **image_data)
