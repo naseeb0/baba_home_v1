@@ -1,5 +1,5 @@
 from django.db import models
-
+import json
 
 class Developer(models.Model):
     name = models.CharField(max_length=300)
@@ -45,7 +45,8 @@ class PreConstruction(models.Model):
     project_type = models.CharField(max_length=200, choices=PROJECT_CHOICES, default="Condo")
     street_map = models.TextField()
     developer= models.ForeignKey(Developer, on_delete=models.CASCADE, related_name='preconstructions')
-    city = models.ForeignKey('City', on_delete=models.CASCADE)
+    city = models.ForeignKey("City", on_delete=models.CASCADE, related_name='preconstructions')
+    
     def __str__(self):
         return self.project_name
     
@@ -58,3 +59,14 @@ class City(models.Model):
     
     def __str__(self):
         return self.name
+    
+
+class PreConstructionImage(models.Model):
+    preconstructionImage = models.ForeignKey(PreConstruction, on_delete=models.CASCADE, related_name='images')
+    images = models.FileField()
+    imagealt = models.CharField(max_length=200, default="Preconstruction Image")
+    def __str__(self):
+        return json.dumps({
+            "url": self.images.url,
+            "alt": self.imagealt
+        })

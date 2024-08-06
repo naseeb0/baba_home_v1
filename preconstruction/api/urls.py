@@ -7,4 +7,5 @@ urlpatterns = [
     path('developer/<int:pk>/', developer_details.as_view(), name='developer-details'),
     path('city/', city_list.as_view(), name='city-list'),
     path('city/<int:pk>/', city_details.as_view(), name='city-details'),
+
 ]
