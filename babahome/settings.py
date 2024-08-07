@@ -24,9 +24,8 @@ SECRET_KEY = 'django-insecure-q2#xvi%d*p%!-aqqkx3hisuvp=w!3q1eyyeeu-=&fff!sa(aqy
 
 # SECURITY WARNING: don't run with debug turned on in production!
 #TEST FOR AZURE PROD
-DEBUG = False
-ALLOWED_HOSTS = ['homebaba.azurewebsites.net']
-
+DEBUG = True
+ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -39,9 +38,33 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'preconstruction',
     'rest_framework',
+    'rest_framework.authtoken', #yesma chai Models huncha Auth ko Lagi
     'drf_yasg',
+    'accounts',
+    "corsheaders",
 
 ]
+
+#NSB Add
+AUTH_USER_MODEL = "accounts.User"
+#Customize Garne errors
+REST_FRAMEWORK = {
+    "NON_FIELD_ERRORS_KEY": "errors", 
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+        ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+    ]
+        }
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -52,7 +75,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
 ROOT_URLCONF = 'babahome.urls'
 
 TEMPLATES = [
@@ -138,23 +164,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-import os
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'django_debug.log'),
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-    },
-}
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
