@@ -39,8 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'preconstruction',
     'rest_framework',
+    'rest_framework.authtoken', #yesma chai Models huncha Auth ko Lagi
     'drf_yasg',
-    'accounts'
+    'accounts',
+    "corsheaders",
 
 ]
 
@@ -48,7 +50,21 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = "accounts.User"
 #Customize Garne errors
 REST_FRAMEWORK = {
-    "NON_FIELD_ERRORS_KEY": "errors"}
+    "NON_FIELD_ERRORS_KEY": "errors", 
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+        ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+    ]
+        }
 
 
 MIDDLEWARE = [
@@ -60,7 +76,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
 ROOT_URLCONF = 'babahome.urls'
 
 TEMPLATES = [
