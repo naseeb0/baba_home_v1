@@ -45,3 +45,4 @@ class LoginView(generics.GenericAPIView):
     def get(self, request: Request):
         content = {"user": str(request.user), "auth": str(request.auth)}
         return Response(data=content, status=status.HTTP_200_OK)
+#TEs
