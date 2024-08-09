@@ -1,3 +1,4 @@
+#AUTH TOKEN COMPLETED 
 from django.shortcuts import render
 from .serializers import SignUpSerializer, LoginSerializer
 from rest_framework import generics, status
@@ -45,4 +46,3 @@ class LoginView(generics.GenericAPIView):
     def get(self, request: Request):
         content = {"user": str(request.user), "auth": str(request.auth)}
         return Response(data=content, status=status.HTTP_200_OK)
-#TEs
