@@ -6,6 +6,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
+from .tokens import create_jwt_pair_for_user
 class SignUpView(generics.GenericAPIView):
     serializer_class = SignUpSerializer
     permission_classes = [AllowAny]
@@ -33,10 +34,10 @@ class LoginView(generics.GenericAPIView):
 
         if user is not None:
             # Retrieve the token for the authenticated user
-            token, created = Token.objects.get_or_create(user=user)
+            tokens = create_jwt_pair_for_user(user)
             response = {
                 "message": "Login Successful",
-                "token": token.key
+                "token": tokens
             }
             return Response(data=response, status=status.HTTP_200_OK)
         else:
@@ -45,4 +46,5 @@ class LoginView(generics.GenericAPIView):
     def get(self, request: Request):
         content = {"user": str(request.user), "auth": str(request.auth)}
         return Response(data=content, status=status.HTTP_200_OK)
-#TEs
+
+
