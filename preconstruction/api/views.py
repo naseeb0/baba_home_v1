@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from preconstruction.models import PreConstruction, Developer, City
 from preconstruction.api.serializers import PreConstructionSerializer, DeveloperSerializer, CitySerializer
 from rest_framework import generics
-
+from rest_framework.permissions import IsAuthenticated
 class preconstruction_list(generics.ListCreateAPIView):
     queryset = PreConstruction.objects.all()
     serializer_class = PreConstructionSerializer
