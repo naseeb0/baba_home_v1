@@ -1,3 +1,4 @@
+#JWT COMPLeted
 from django.shortcuts import render
 from rest_framework.authentication import TokenAuthentication
 from django.conf import settings
