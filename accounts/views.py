@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework.authentication import TokenAuthentication
 from django.conf import settings
+from rest_framework.exceptions import AuthenticationFailed
 
 from .serializers import SignUpSerializer, LoginSerializer, UserSerializer
 from rest_framework import generics, status
@@ -65,17 +66,6 @@ class LoginView(generics.GenericAPIView):
         content = {"user": str(request.user), "auth": str(request.auth)}
         return Response(data=content, status=status.HTTP_200_OK)
 
-#Creating User Logout LogoutView
-
-class LogoutView(generics.GenericAPIView):
-    permission_classes = [AllowAny]
-
-    def post(self, request: Request):
-        request.user.auth_token.delete()
-        return Response(status=status.HTTP_200_OK)
-
-#To check user authentication status, you can use the following view: JWT Authentication .. Use Browser JWT access_token from cookie
-logger = logging.getLogger(__name__)
 
 class UserViewAPI(generics.GenericAPIView):
 	authentication_classes = (TokenAuthentication,)
@@ -85,7 +75,7 @@ class UserViewAPI(generics.GenericAPIView):
 		user_token = request.COOKIES.get('access_token')
 
 		if not user_token:
-			raise Exception('Unauthenticated user.')
+			raise AuthenticationFailed('Unauthenticated user.')
 
 		payload = decode_jwt(user_token)
 
@@ -93,3 +83,22 @@ class UserViewAPI(generics.GenericAPIView):
 		user = user_model.objects.filter(id=payload['user_id']).first()
 		user_serializer = SignUpSerializer(user)
 		return Response(user_serializer.data)
+     
+class UserLogoutViewAPI(generics.GenericAPIView):
+	authentication_classes = (TokenAuthentication,)
+	permission_classes = (AllowAny,)
+
+	def get(self, request):
+		user_token = request.COOKIES.get('access_token', None)
+		if user_token:
+			response = Response()
+			response.delete_cookie('access_token')
+			response.data = {
+				'message': 'Logged out successfully.'
+			}
+			return response
+		response = Response()
+		response.data = {
+			'message': 'User is already logged out.'
+		}
+		return response
