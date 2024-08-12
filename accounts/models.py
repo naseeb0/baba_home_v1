@@ -6,6 +6,25 @@ from django.db import models
 
 
 class UserManager(BaseUserManager):
+    def create_user(self, email, password, role='homeStaff', **extra_fields):
+        email = self.normalize_email(email)
+        user = self.model(email=email, role=role, **extra_fields)
+        user.set_password(password)
+        user.save()
+        return user
+
+    def create_superuser(self, email, password, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("role", "superuser")
+
+        if extra_fields.get("is_staff") is not True:
+            raise ValueError("Superuser has to have is_staff being True")
+
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError("Superuser has to have is_superuser being True")
+
+        return self.create_user(email=email, password=password, **extra_fields)
     def create_user(self, email, password, **extra_fields):
         email = self.normalize_email(email)
 
@@ -31,12 +50,19 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractUser):
+    ROLE_CHOICES = [
+        ('homeStaff', 'Home Staff'),
+        ('Builder', 'Builder'),
+        ('superuser', 'Superuser'),
+    ]
+
     email = models.CharField(max_length=80, unique=True)
     username = models.CharField(max_length=45)
     company = models.CharField(max_length=45, blank=True, null=True)
     phone = models.CharField(max_length=45, blank=True, null=True)
     address = models.CharField(max_length=45, blank=True, null=True)
     is_active = models.BooleanField(default=True)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='homeStaff')
 
     objects = UserManager()
     USERNAME_FIELD = "email"
