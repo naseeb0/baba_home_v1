@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.authentication import TokenAuthentication
+from django.conf import settings
 
 from .serializers import SignUpSerializer, LoginSerializer, UserSerializer
 from rest_framework import generics, status
@@ -76,35 +77,19 @@ class LogoutView(generics.GenericAPIView):
 #To check user authentication status, you can use the following view: JWT Authentication .. Use Browser JWT access_token from cookie
 logger = logging.getLogger(__name__)
 
-class UserViewApi(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+class UserViewAPI(generics.GenericAPIView):
+	authentication_classes = (TokenAuthentication,)
+	permission_classes = (AllowAny,)
 
-    def get(self, request: Request):
-        access_token = request.COOKIES.get('access_token')
+	def get(self, request):
+		user_token = request.COOKIES.get('access_token')
 
-        if not access_token:
-            return Response({"message": "No access token provided"}, status=status.HTTP_401_UNAUTHORIZED)
+		if not user_token:
+			raise Exception('Unauthenticated user.')
 
-        # Decode the JWT token
-        token_data = decode_jwt(access_token)
+		payload = decode_jwt(user_token)
 
-        if 'error' in token_data:
-            return Response({"message": token_data['error']}, status=status.HTTP_401_UNAUTHORIZED)
-
-        user_id = token_data.get('user_id')
-        if not user_id:
-            return Response({"message": "Invalid token: user_id not found"}, status=status.HTTP_401_UNAUTHORIZED)
-
-        # Retrieve the user from the database
-        try:
-            user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        data = {
-            "user": str(user),
-            "email": user.email,
-            "is_authenticated": user.is_authenticated
-        }
-        return Response(data=data, status=status.HTTP_200_OK)
+		user_model = get_user_model()
+		user = user_model.objects.filter(id=payload['user_id']).first()
+		user_serializer = SignUpSerializer(user)
+		return Response(user_serializer.data)
