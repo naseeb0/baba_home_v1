@@ -3,9 +3,9 @@ import json
 
 class Developer(models.Model):
     name = models.CharField(max_length=300)
-    website = models.CharField(max_length=300)
-    details = models.TextField()
-    slug = models.SlugField(max_length=200)
+    website = models.CharField(max_length=300, null=True, blank=True)
+    details = models.TextField(max_length=300, null=True, blank=True)
+    slug = models.SlugField(max_length=200, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -30,11 +30,11 @@ class PreConstruction(models.Model):
     meta_title = models.CharField(max_length=100)
     meta_description = models.CharField(max_length=200)
     project_name = models.CharField(max_length=500)
-    slug = models.CharField(max_length=200)
+    slug = models.CharField(max_length=200, null=True, blank=True)
     storeys = models.CharField(max_length=200)
     total_units = models.CharField(max_length=200)
-    price_starts = models.FloatField()
-    price_end = models.FloatField()
+    price_starts = models.FloatField(null=True, blank=True)
+    price_end = models.FloatField(null=True, blank=True)
     description = models.TextField()
     project_address = models.CharField(max_length=400)
     postal_code = models.CharField(max_length=200)  
@@ -53,18 +53,19 @@ class PreConstruction(models.Model):
 class City(models.Model):
 
     name = models.CharField(max_length=200)
-    city_lat = models.CharField(max_length=200)
-    city_long = models.CharField(max_length=200)
-    city_details = models.TextField()
+    city_lat = models.CharField(max_length=200, null=True, blank=True)
+    city_long = models.CharField(max_length=200, null=True, blank=True)
+    city_details = models.TextField(max_length=200, null=True, blank=True)
     
     def __str__(self):
         return self.name
     
 
 class PreConstructionImage(models.Model):
-    preconstructionImage = models.ForeignKey(PreConstruction, on_delete=models.CASCADE, related_name='images')
-    images = models.FileField()
-    imagealt = models.CharField(max_length=200, default="Preconstruction Image")
+    preconstruction = models.ForeignKey(PreConstruction, on_delete=models.CASCADE, related_name='images')
+    images = models.FileField(upload_to='preconstruction_images/')
+    imagealt = models.CharField(max_length=255, null=True, blank=True)  # Allow NULL or blank values
+
     def __str__(self):
         return json.dumps({
             "url": self.images.url,
