@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-q2#xvi%d*p%!-aqqkx3hisuvp=w!3q1eyyeeu-=&fff!sa(aqy
 # SECURITY WARNING: don't run with debug turned on in production!
 #TEST FOR AZURE PROD
 DEBUG = True
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -96,13 +96,19 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 CORS_ALLOW_ALL_ORIGINS = True
-
+CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
      "http://localhost:3001",
     "http://127.0.0.1:3001",
 ]
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    # Add other trusted origins here if necessary
+]
+2. 
 ROOT_URLCONF = 'babahome.urls'
 
 TEMPLATES = [
