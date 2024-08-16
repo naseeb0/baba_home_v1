@@ -50,3 +50,15 @@ class city_details(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [];
     queryset = City.objects.all()
     serializer_class = CitySerializer
+
+
+class PreConstructionImageDeleteView(generics.DestroyAPIView):
+    queryset = PreConstructionImage.objects.all()
+    permission_classes = []
+
+    def delete(self, request, *args, **kwargs):
+        image = self.get_object()
+
+        image.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)

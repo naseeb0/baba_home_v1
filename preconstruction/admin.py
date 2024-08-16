@@ -46,3 +46,4 @@ admin.site.register(PreConstruction);
 admin.site.register(Developer);
 
 admin.site.register(PreConstructionImage);
+admin.site.register(City);
