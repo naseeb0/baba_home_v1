@@ -1,4 +1,4 @@
-
+#CHECKPOINT 1 
 from django.apps import AppConfig
 
 
