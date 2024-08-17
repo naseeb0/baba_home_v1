@@ -41,7 +41,7 @@ class PreConstructionSerializer(serializers.ModelSerializer):
     class Meta:
         model = PreConstruction
         fields = [
-            'id', 'meta_title', 'meta_description', 'project_name', 'slug', 'storeys', 'total_units',
+            'id', 'created','meta_title', 'meta_description', 'project_name', 'slug', 'storeys', 'total_units',
             'price_starts', 'price_end', 'description', 'project_address', 'postal_code', 'latitude',
             'longitude', 'occupancy', 'status', 'project_type', 'street_map', 'developer', 'city', 'images', "uploaded_images"
         ]

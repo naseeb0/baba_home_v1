@@ -46,6 +46,7 @@ class PreConstruction(models.Model):
     street_map = models.TextField()
     developer= models.ForeignKey(Developer, on_delete=models.CASCADE, related_name='preconstructions')
     city = models.ForeignKey("City", on_delete=models.CASCADE, related_name='preconstructions')
+    created = models.DateTimeField(auto_now_add=True)
     image= models.ImageField(upload_to='preconstruction_images/', blank=True, null=True, default='')
     
     def __str__(self):

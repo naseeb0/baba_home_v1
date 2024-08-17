@@ -4,12 +4,19 @@ from preconstruction.models import PreConstruction, Developer, City, PreConstruc
 from preconstruction.api.serializers import PreConstructionSerializer, DeveloperSerializer, CitySerializer
 from rest_framework import generics, status
 from rest_framework.parsers import MultiPartParser, FormParser
-
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 from rest_framework.permissions import IsAuthenticated
+from preconstruction.api.pagination import PreconstructionPagination, PreconstrctionOfPage
 class preconstruction_list(generics.ListCreateAPIView):
     permission_classes=[];
     queryset = PreConstruction.objects.all().order_by('id')
     serializer_class = PreConstructionSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter] 
+    filterset_fields = ['city__name', 'developer__name', 'status','project_type' ]
+    search_fields = ['project_name','=city__name']
+    pagination_class = PreconstrctionOfPage
+ 
 
 
     def post(self, request, *args, **kwargs):
