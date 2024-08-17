@@ -46,6 +46,7 @@ class PreConstruction(models.Model):
     street_map = models.TextField()
     developer= models.ForeignKey(Developer, on_delete=models.CASCADE, related_name='preconstructions')
     city = models.ForeignKey("City", on_delete=models.CASCADE, related_name='preconstructions')
+    image= models.ImageField(upload_to='preconstruction_images/', blank=True, null=True, default='')
     
     def __str__(self):
         return self.project_name
@@ -61,13 +62,7 @@ class City(models.Model):
         return self.name
     
 
-class PreConstructionImage(models.Model):
-    preconstruction = models.ForeignKey(PreConstruction, on_delete=models.CASCADE, related_name='images')
-    images = models.FileField(upload_to='preconstruction_images/')
-    imagealt = models.CharField(max_length=255, null=True, blank=True)  # Allow NULL or blank values
 
-    def __str__(self):
-        return json.dumps({
-            "url": self.images.url,
-            "alt": self.imagealt
-        })
+class PreConstructionImage(models.Model):
+    preconstruction = models.ForeignKey(PreConstruction, on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(null=True, blank=True, upload_to='preconstruction_images/', default="")
