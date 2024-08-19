@@ -8,8 +8,8 @@ class PreconstructionPagination(PageNumberPagination):
     page_size_query_param = 'size'
     max_page_size = 40
 
-class PreconstrctionOfPage(LimitOffsetPagination):
-    default_limit = 10
+# class PreconstrctionOfPage(LimitOffsetPagination):
+#     default_limit = 10
     
 
 # class PreconCursorPage(CursorPagination):
