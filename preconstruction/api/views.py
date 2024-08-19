@@ -1,3 +1,4 @@
+#CHECKPOINT 3 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from preconstruction.models import PreConstruction, Developer, City, PreConstructionImage
