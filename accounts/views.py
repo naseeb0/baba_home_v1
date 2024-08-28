@@ -32,7 +32,7 @@ class SignUpView(generics.GenericAPIView):
             new_user = serializer.save()
             if new_user:
                 access_token = create_jwt_pair_for_user(new_user)
-                data = {'access_token':access_token}
+                data = {'access_token': access_token}
                 response = Response(data=data, status=status.HTTP_201_CREATED)
                 response.set_cookie(key='access_token', value=access_token, httponly=True)
                 return response
@@ -57,8 +57,9 @@ class LoginView(generics.GenericAPIView):
             response = Response({
                 "message": "Login Successful",
                 "token": tokens
-            }, status = status.HTTP_200_OK)
-            response.set_cookie(key='access_token', value=tokens['access'], httponly=True, samesite='Lax')
+            }, status=status.HTTP_200_OK)
+            response.set_cookie(key='access_token', value=tokens['access'], httponly=False, samesite='None',
+                                secure=True)
             return response
         else:
             return Response(data={"message": "Invalid Credentials"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -69,37 +70,39 @@ class LoginView(generics.GenericAPIView):
 
 
 class UserViewAPI(generics.GenericAPIView):
-	authentication_classes = (TokenAuthentication,)
-	permission_classes = (AllowAny,)
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (AllowAny,)
 
-	def get(self, request):
-		user_token = request.COOKIES.get('access_token')
+    def get(self, request):
+        user_token = request.COOKIES.get('access_token')
 
-		if not user_token:
-			raise AuthenticationFailed('Unauthenticated user.')
+        if not user_token:
+            raise AuthenticationFailed('Unauthenticated user.')
 
-		payload = decode_jwt(user_token)
+        payload = decode_jwt(user_token)
 
-		user_model = get_user_model()
-		user = user_model.objects.filter(id=payload['user_id']).first()
-		user_serializer = SignUpSerializer(user)
-		return Response(user_serializer.data)
-     
+        user_model = get_user_model()
+        user = user_model.objects.filter(id=payload['user_id']).first()
+        user_serializer = SignUpSerializer(user)
+
+        return Response(user_serializer.data)
+
+
 class UserLogoutViewAPI(generics.GenericAPIView):
-	authentication_classes = (TokenAuthentication,)
-	permission_classes = (AllowAny,)
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (AllowAny,)
 
-	def get(self, request):
-		user_token = request.COOKIES.get('access_token', None)
-		if user_token:
-			response = Response()
-			response.delete_cookie('access_token')
-			response.data = {
-				'message': 'Logged out successfully.'
-			}
-			return response
-		response = Response()
-		response.data = {
-			'message': 'User is already logged out.'
-		}
-		return response
+    def get(self, request):
+        user_token = request.COOKIES.get('access_token', None)
+        if user_token:
+            response = Response()
+            response.delete_cookie('access_token')
+            response.data = {
+                'message': 'Logged out successfully.'
+            }
+            return response
+        response = Response()
+        response.data = {
+            'message': 'User is already logged out.'
+        }
+        return response

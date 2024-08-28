@@ -25,8 +25,8 @@ SECRET_KEY = 'django-insecure-q2#xvi%d*p%!-aqqkx3hisuvp=w!3q1eyyeeu-=&fff!sa(aqy
 
 # SECURITY WARNING: don't run with debug turned on in production!
 #TEST FOR AZURE PROD
-DEBUG = False
-ALLOWED_HOSTS = ['143.198.34.20','admin.homebaba.com','www.admin.homebaba.com']
+DEBUG = True
+ALLOWED_HOSTS = ['143.198.34.20','admin.homebaba.com','www.admin.homebaba.com','127.0.0.1', 'localhost']
 
 # Application definition
 
@@ -57,9 +57,7 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
-    'AUTH_TOKEN_CLASSES': ('access',),
     'TOKEN_TYPE_CLAIM': 'token_type',
-    'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
 #NSB Add
@@ -99,6 +97,8 @@ MIDDLEWARE = [
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
+     'http://admin.homebaba.com',
+    'https://admin.homebaba.com',
     "http://localhost:3000",
     "http://127.0.0.1:3000",
      "http://localhost:3001",
@@ -134,23 +134,23 @@ WSGI_APPLICATION = 'babahome.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-#
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'homebabacom',
-        'USER': 'naseeb',
-        'PASSWORD': 'DatabaseNaseebPassword',
-        'HOST': 'localhost',
-        'PORT': '',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'homebabacom',
+#         'USER': 'naseeb',
+#         'PASSWORD': 'DatabaseNaseebPassword',
+#         'HOST': 'localhost',
+#         'PORT': '',
+#     }
+# }
 
 
 

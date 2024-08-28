@@ -1,5 +1,6 @@
 from django.db import models
 import json
+from django.conf import settings
 
 class Developer(models.Model):
     name = models.CharField(max_length=300)
@@ -48,6 +49,9 @@ class PreConstruction(models.Model):
     city = models.ForeignKey("City", on_delete=models.CASCADE, related_name='preconstructions')
     created = models.DateTimeField(auto_now_add=True)
     image= models.ImageField(upload_to='preconstruction_images/', blank=True, null=True, default='')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, related_name='preconstructions',null=True)
+    is_featured = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False)
     
     def __str__(self):
         return self.project_name

@@ -9,10 +9,10 @@ class SignUpSerializer(serializers.ModelSerializer):
     company = serializers.CharField(max_length=45, required=False, allow_blank=True)
     phone = serializers.CharField(max_length=45, required=False, allow_blank=True)
     address = serializers.CharField(max_length=45, required=False, allow_blank=True)
-
+    role = serializers.CharField(max_length=45, required=False, allow_blank=False)
     class Meta:
         model = User
-        fields = ["email", "username", "password", "company", "phone", "address"]
+        fields = ["email", "username", "password", "company", "phone", "address","role", "id"]
         extra_kwargs = {"password": {"write_only": True}}
     
     def validate(self, attrs):

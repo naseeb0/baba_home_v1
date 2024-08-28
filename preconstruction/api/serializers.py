@@ -43,8 +43,12 @@ class PreConstructionSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'created','meta_title', 'meta_description', 'project_name', 'slug', 'storeys', 'total_units',
             'price_starts', 'price_end', 'description', 'project_address', 'postal_code', 'latitude',
-            'longitude', 'occupancy', 'status', 'project_type', 'street_map', 'developer', 'city', 'images', "uploaded_images"
+            'longitude', 'occupancy', 'status', 'project_type', 'street_map', 'developer', 'city', 'images', "uploaded_images", 'user',
+            'is_featured',
+            'is_verified'
         ]
+        read_only_fields = ['user']
+
         extra_kwargs = {
             'latitude': {'required': False},
             'longitude': {'required': False},
@@ -64,6 +68,8 @@ class PreConstructionSerializer(serializers.ModelSerializer):
             'project_type': {'required': True},
             'status': {'required': True},
             'uploaded_images': {'required': False},
+            'is_featured': {'required': False},
+            'is_verified': {'required': False},
         }
 
     
