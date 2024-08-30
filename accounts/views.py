@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework.authentication import TokenAuthentication
 from django.conf import settings
 from rest_framework.exceptions import AuthenticationFailed
+from django.views import View
 
 from .serializers import SignUpSerializer, LoginSerializer, UserSerializer
 from rest_framework import generics, status
@@ -15,7 +16,9 @@ from .tokens import create_jwt_pair_for_user, decode_jwt
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
-
+from django.http import JsonResponse
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.utils.decorators import method_decorator
 User = get_user_model()
 import logging
 
@@ -106,3 +109,8 @@ class UserLogoutViewAPI(generics.GenericAPIView):
             'message': 'User is already logged out.'
         }
         return response
+
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class GetCSRFToken(View):
+    def get(self, request, *args, **kwargs):
+        return JsonResponse({'success': 'CSRF cookie set'})
