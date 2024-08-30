@@ -14,6 +14,6 @@ urlpatterns = [
     path("jwt/verify", TokenVerifyView.as_view(), name="jwt_verify"),
     path('logout/',UserLogoutViewAPI.as_view(), name='logout'),
     path('user/', UserViewAPI.as_view(),name='user'),
-    path('auth/get-csrf-token/', GetCSRFToken.as_view(), name='get_csrf_token'),
+    path('get-csrf-token/', GetCSRFToken.as_view(), name='get_csrf_token'),
 
 ]
