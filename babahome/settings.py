@@ -105,16 +105,18 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3001",
     "https://homebaba.com",
     'http://homebaba.com'
+    "https://www.homebaba.com",
 ]
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
     'https://homebaba.com',
-    'http://homebaba.com'
+    'http://homebaba.com',
+    "https://www.homebaba.com",
 
     # Add other trusted origins here if necessary
 ]
-2. 
+
 ROOT_URLCONF = 'babahome.urls'
 
 TEMPLATES = [
@@ -139,23 +141,23 @@ WSGI_APPLICATION = 'babahome.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'homebabacom',
-#         'USER': 'naseeb',
-#         'PASSWORD': 'DatabaseNaseebPassword',
-#         'HOST': 'localhost',
-#         'PORT': '',
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'homebabacom',
+        'USER': 'naseeb',
+        'PASSWORD': 'DatabaseNaseebPassword',
+        'HOST': 'localhost',
+        'PORT': '',
+    }
+}
 
 
 
