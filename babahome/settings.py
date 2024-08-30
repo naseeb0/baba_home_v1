@@ -107,6 +107,9 @@ CORS_ALLOWED_ORIGINS = [
     'http://homebaba.com',
     'https://www.homebaba.com',
 ]
+CSRF_COOKIE_SECURE = True  # Set to False if not using HTTPS
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_NAME = 'csrftoken'
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
@@ -114,6 +117,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://homebaba.com',
     'https://www.homebaba.com',
 ]
+
 
 ROOT_URLCONF = 'babahome.urls'
 
