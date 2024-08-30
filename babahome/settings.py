@@ -110,7 +110,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
     'https://homebaba.com',
-    'http://homebaba.com/'
+    'http://homebaba.com'
 
     # Add other trusted origins here if necessary
 ]
