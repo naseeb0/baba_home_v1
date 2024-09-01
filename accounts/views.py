@@ -3,6 +3,7 @@ from rest_framework.authentication import TokenAuthentication
 from django.conf import settings
 from rest_framework.exceptions import AuthenticationFailed
 from django.views import View
+from django.middleware.csrf import get_token
 
 from .serializers import SignUpSerializer, LoginSerializer, UserSerializer
 from rest_framework import generics, status
@@ -22,7 +23,7 @@ from django.utils.decorators import method_decorator
 User = get_user_model()
 import logging
 
-
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class SignUpView(generics.GenericAPIView):
     serializer_class = SignUpSerializer
     permission_classes = [AllowAny]
@@ -41,7 +42,7 @@ class SignUpView(generics.GenericAPIView):
                 return response
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class LoginView(generics.GenericAPIView):
     serializer_class = LoginSerializer
     permission_classes = [AllowAny]
@@ -110,7 +111,11 @@ class UserLogoutViewAPI(generics.GenericAPIView):
         }
         return response
 
-@method_decorator(ensure_csrf_cookie, name='dispatch')
-class GetCSRFToken(View):
+
+
+
+class GetCsrfToken(View):
+    @method_decorator(ensure_csrf_cookie)
     def get(self, request, *args, **kwargs):
-        return JsonResponse({'success': 'CSRF cookie set'})
+        csrf_token = get_token(request)
+        return JsonResponse({'csrfToken': csrf_token})

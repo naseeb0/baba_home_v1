@@ -25,8 +25,8 @@ SECRET_KEY = 'django-insecure-q2#xvi%d*p%!-aqqkx3hisuvp=w!3q1eyyeeu-=&fff!sa(aqy
 
 # SECURITY WARNING: don't run with debug turned on in production!
 #TEST FOR AZURE PROD
-DEBUG = True
-ALLOWED_HOSTS = ['143.198.34.20','admin.homebaba.com','www.admin.homebaba.com','127.0.0.1', 'localhost']
+
+ALLOWED_HOSTS = ['143.198.34.20','admin.homebaba.com','www.admin.homebaba.com','127.0.0.1', 'localhost','homebaba.com','www.homebaba.com']
 
 # Application definition
 
@@ -96,6 +96,24 @@ MIDDLEWARE = [
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+
+#LOCAL MA
+DEBUG = True
+CSRF_COOKIE_SECURE = False  
+CSRF_COOKIE_HTTPONLY = False  
+CSRF_COOKIE_SAMESITE = 'Lax'  
+SESSION_COOKIE_SECURE = False  
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'  
+
+#PROD MA
+# DEBUG = False
+# CSRF_COOKIE_SECURE=True
+# CSRF_COOKIE_HTTPONLY=True
+# CSRF_COOKIE_SAMESITE=None
+# SESSION_COOKIE_SECURE=True
+# SESSION_COOKIE_SAMESITE=None
+
 CORS_ALLOWED_ORIGINS = [
     'http://admin.homebaba.com',
     'https://admin.homebaba.com',
@@ -107,9 +125,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://homebaba.com',
     'https://www.homebaba.com',
 ]
-CSRF_COOKIE_SECURE = True  # Set to False if not using HTTPS
-CSRF_COOKIE_HTTPONLY = False
-CSRF_COOKIE_NAME = 'csrftoken'
+
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
@@ -117,6 +133,9 @@ CSRF_TRUSTED_ORIGINS = [
     'http://homebaba.com',
     'https://www.homebaba.com',
 ]
+
+
+
 
 
 ROOT_URLCONF = 'babahome.urls'
@@ -140,26 +159,24 @@ TEMPLATES = [
 WSGI_APPLICATION = 'babahome.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'homebabacom',
-        'USER': 'naseeb',
-        'PASSWORD': 'DatabaseNaseebPassword',
-        'HOST': 'localhost',
-        'PORT': '',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'homebabacom',
+#         'USER': 'naseeb',
+#         'PASSWORD': 'DatabaseNaseebPassword',
+#         'HOST': 'localhost',
+#         'PORT': '',
+#     }
+# }
 
 
 

@@ -1,6 +1,6 @@
 from . import views
 from django.urls import path
-from .views import SignUpView,LoginView,UserLogoutViewAPI,UserViewAPI, GetCSRFToken
+from .views import SignUpView,LoginView,UserLogoutViewAPI,UserViewAPI, GetCsrfToken
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -14,6 +14,6 @@ urlpatterns = [
     path("jwt/verify", TokenVerifyView.as_view(), name="jwt_verify"),
     path('logout/',UserLogoutViewAPI.as_view(), name='logout'),
     path('user/', UserViewAPI.as_view(),name='user'),
-    path('get-csrf-token/', GetCSRFToken.as_view(), name='get_csrf_token'),
+    path('get-csrf-token/', GetCsrfToken.as_view(), name='get_csrf_token'),
 
 ]
