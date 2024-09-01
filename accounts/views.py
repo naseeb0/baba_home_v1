@@ -4,6 +4,7 @@ from django.conf import settings
 from rest_framework.exceptions import AuthenticationFailed
 from django.views import View
 from django.middleware.csrf import get_token
+from django.views.decorators.csrf import csrf_exempt
 
 from .serializers import SignUpSerializer, LoginSerializer, UserSerializer
 from rest_framework import generics, status
@@ -42,7 +43,7 @@ class SignUpView(generics.GenericAPIView):
                 return response
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@method_decorator(ensure_csrf_cookie, name='dispatch')
+
 class LoginView(generics.GenericAPIView):
     serializer_class = LoginSerializer
     permission_classes = [AllowAny]
