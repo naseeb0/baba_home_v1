@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'preconstruction',
     'rest_framework',
-    'rest_framework.authtoken', #yesma chai Models huncha Auth ko Lagi
+    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
     'drf_yasg',
     'accounts',
     "corsheaders",
@@ -69,7 +70,7 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.TokenAuthentication",
         "rest_framework.authentication.SessionAuthentication",
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        ],
+    ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
@@ -79,7 +80,6 @@ REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
-
     ]
         }
 
@@ -105,13 +105,6 @@ CORS_ALLOW_CREDENTIALS = True
 # SESSION_COOKIE_SECURE = False  
 # SESSION_COOKIE_HTTPONLY = True
 # SESSION_COOKIE_SAMESITE = 'Lax'  
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
 
 #PROD MA
 DEBUG = False
@@ -121,6 +114,14 @@ CSRF_COOKIE_SAMESITE='Lax'
 SESSION_COOKIE_SECURE=True
 SESSION_COOKIE_SAMESITE='Lax'
 SESSION_COOKIE_HTTPONLY = True
+
+""" DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+} """
+
 
 DATABASES = {
     'default': {
