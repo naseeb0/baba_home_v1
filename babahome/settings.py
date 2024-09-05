@@ -152,6 +152,8 @@ CSRF_TRUSTED_ORIGINS = [
     'https://homebaba.com',
     'http://homebaba.com',
     'https://www.homebaba.com',
+    'http://admin.homebaba.com',
+    'https://www.admin.homebaba.com'
 ]
 
 
