@@ -21,6 +21,7 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework.authentication import get_authorization_header
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from django.utils.decorators import method_decorator
 User = get_user_model()
@@ -74,6 +75,7 @@ class LoginView(generics.GenericAPIView):
     def get(self, request: Request):
         content = {"user": str(request.user), "auth": str(request.auth)}
         return Response(data=content, status=status.HTTP_200_OK)
+
 
 
 class UserViewAPI(generics.GenericAPIView):
