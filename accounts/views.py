@@ -20,6 +20,8 @@ from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
+from rest_framework.authentication import get_authorization_header
+
 from django.utils.decorators import method_decorator
 User = get_user_model()
 import logging
@@ -75,21 +77,24 @@ class LoginView(generics.GenericAPIView):
 
 
 class UserViewAPI(generics.GenericAPIView):
-    authentication_classes = (TokenAuthentication,)
     permission_classes = (AllowAny,)
 
     def get(self, request):
-        user_token = request.COOKIES.get('access_token')
+        auth_header = get_authorization_header(request).split()
 
-        if not user_token:
+        if not auth_header or len(auth_header) != 2:
             raise AuthenticationFailed('Unauthenticated user.')
 
-        payload = decode_jwt(user_token)
+        token = auth_header[1].decode('utf-8')
+        payload = decode_jwt(token)
 
         user_model = get_user_model()
         user = user_model.objects.filter(id=payload['user_id']).first()
-        user_serializer = SignUpSerializer(user)
 
+        if not user:
+            raise AuthenticationFailed('User not found.')
+
+        user_serializer = SignUpSerializer(user)
         return Response(user_serializer.data)
 
 

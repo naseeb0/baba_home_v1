@@ -59,3 +59,5 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email']  # Include any fields you need
+
+        

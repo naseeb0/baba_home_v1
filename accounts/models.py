@@ -54,6 +54,7 @@ class User(AbstractUser):
         ('homeStaff', 'Home Staff'),
         ('Builder', 'Builder'),
         ('superuser', 'Superuser'),
+        ('guest', 'Guest'),
     ]
 
     email = models.CharField(max_length=80, unique=True)
@@ -62,7 +63,7 @@ class User(AbstractUser):
     phone = models.CharField(max_length=45, blank=True, null=True)
     address = models.CharField(max_length=45, blank=True, null=True)
     is_active = models.BooleanField(default=True)
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='homeStaff')
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='guest')
 
     objects = UserManager()
     USERNAME_FIELD = "email"
