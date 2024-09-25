@@ -9,6 +9,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.permissions import IsAuthenticated
 from preconstruction.api.pagination import PreconstructionPagination
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie
+
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class preconstruction_list(generics.ListCreateAPIView):
     permission_classes=[IsAuthenticated];
     queryset = PreConstruction.objects.all().order_by('id')
