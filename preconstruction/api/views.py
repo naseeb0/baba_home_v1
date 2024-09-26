@@ -9,28 +9,28 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.permissions import IsAuthenticated
 from preconstruction.api.pagination import PreconstructionPagination
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import ensure_csrf_cookie
 
-@method_decorator(ensure_csrf_cookie, name='dispatch')
+
 class preconstruction_list(generics.ListCreateAPIView):
-    permission_classes=[IsAuthenticated];
+    permission_classes=[IsAuthenticated]
+
     queryset = PreConstruction.objects.all().order_by('id')
     serializer_class = PreConstructionSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter] 
-    # filterset_fields = ['city__name', 'developer__name', 'status','project_type' ]
+
     filterset_class = PreConstructionFilter
     search_fields = ['project_name','=city__name']
     pagination_class = PreconstructionPagination
  
 
 
-    def post(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         preconstruction = serializer.save(user=request.user)
-        
+        serializer = PreConstructionSerializer(preconstruction)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 
 class precon_details(generics.RetrieveUpdateDestroyAPIView):
