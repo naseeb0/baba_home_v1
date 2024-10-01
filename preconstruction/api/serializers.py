@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from preconstruction.models import PreConstruction, Developer, City, PreConstructionImage
 
-
 class CitySerializer(serializers.ModelSerializer):
     class Meta:
         model = City
@@ -12,12 +11,10 @@ class CitySerializer(serializers.ModelSerializer):
             'id': {'required': False},
         }
 
-
 class PreConstructionImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = PreConstructionImage
         fields = ["id", "preconstruction", "image"]
-
 
 class DeveloperSerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,24 +25,25 @@ class DeveloperSerializer(serializers.ModelSerializer):
             'id': {'required': False},
         }
 
-
 class PreConstructionSerializer(serializers.ModelSerializer):
     images = PreConstructionImageSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(
-    child=serializers.ImageField(max_length=1000000, allow_empty_file=False, use_url=False),
-    write_only=True,
-)
-    developer = DeveloperSerializer()
-    city = CitySerializer()
+        child=serializers.ImageField(max_length=1000000, allow_empty_file=False, use_url=False),
+        write_only=True,
+        required=False
+    )
+    developer = serializers.PrimaryKeyRelatedField(queryset=Developer.objects.all())
+    city = serializers.PrimaryKeyRelatedField(queryset=City.objects.all())
+    city_name = serializers.CharField(source='city.name', read_only=True)
+    developer_name = serializers.CharField(source='developer.name', read_only=True)
 
     class Meta:
         model = PreConstruction
         fields = [
-            'id', 'created','meta_title', 'meta_description', 'project_name', 'slug', 'storeys', 'total_units',
+            'id', 'created', 'meta_title', 'meta_description', 'project_name', 'slug', 'storeys', 'total_units',
             'price_starts', 'price_end', 'description', 'project_address', 'postal_code', 'latitude',
-            'longitude', 'occupancy', 'status', 'project_type', 'street_map', 'developer', 'city', 'images', "uploaded_images", 'user',
-            'is_featured',
-            'is_verified'
+            'longitude', 'occupancy', 'status', 'project_type', 'street_map', 'developer', 'developer_name',
+            'city', 'city_name', 'images', "uploaded_images", 'user', 'is_featured', 'is_verified'
         ]
         read_only_fields = ['user']
 
@@ -67,27 +65,19 @@ class PreConstructionSerializer(serializers.ModelSerializer):
             'meta_description': {'required': False},
             'project_type': {'required': True},
             'status': {'required': True},
-            'uploaded_images': {'required': False},
             'is_featured': {'required': False},
             'is_verified': {'required': False},
         }
 
-    
+    def get_city_name(self, obj):
+        return obj.city.name if obj.city else None
+
+    def get_developer_name(self, obj):
+        return obj.developer.name if obj.developer else None
+
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images", [])
-        developer_data = validated_data.pop('developer')
-        city_data = validated_data.pop('city')
-
-        city, _ = City.objects.get_or_create(
-            name=city_data.get('name'),
-            defaults=city_data
-        )
-
-        developer, _ = Developer.objects.get_or_create(
-            name=developer_data.get('name'),
-            defaults=developer_data
-        )
-        preconstruction = PreConstruction.objects.create(developer=developer, city=city, **validated_data)
+        preconstruction = PreConstruction.objects.create(**validated_data)
 
         for image in uploaded_images:
             PreConstructionImage.objects.create(

@@ -11,19 +11,19 @@ from rest_framework.permissions import IsAuthenticated
 from preconstruction.api.pagination import PreconstructionPagination
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import csrf_exempt
 
-@method_decorator(ensure_csrf_cookie, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
 class preconstruction_list(generics.ListCreateAPIView):
-    permission_classes=[IsAuthenticated];
-    queryset = PreConstruction.objects.all().order_by('id')
+    permission_classes = []
     serializer_class = PreConstructionSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter] 
-    # filterset_fields = ['city__name', 'developer__name', 'status','project_type' ]
     filterset_class = PreConstructionFilter
-    search_fields = ['project_name','=city__name']
+    search_fields = ['project_name', '=city__name']
     pagination_class = PreconstructionPagination
- 
 
+    def get_queryset(self):
+        return PreConstruction.objects.select_related('city', 'developer').all().order_by('id')
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
