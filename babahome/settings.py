@@ -63,7 +63,7 @@ SIMPLE_JWT = {
 
 #NSB Add
 AUTH_USER_MODEL = "accounts.User"
-#Customize Garne errors
+#Customize Garne ersrors
 REST_FRAMEWORK = {
     "NON_FIELD_ERRORS_KEY": "errors", 
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -97,40 +97,40 @@ MIDDLEWARE = [
 CORS_ALLOW_CREDENTIALS = True
 
 #LOCAL MA
-# DEBUG = True
-# CSRF_COOKIE_SECURE = False  
-# CSRF_COOKIE_HTTPONLY = False  
-# CSRF_COOKIE_SAMESITE = 'Lax'  
-# SESSION_COOKIE_SECURE = False  
-# SESSION_COOKIE_HTTPONLY = True
-# SESSION_COOKIE_SAMESITE = 'Lax'  
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-
-
-DEBUG = False
-CSRF_COOKIE_SECURE=True
-CSRF_COOKIE_HTTPONLY=True
-CSRF_COOKIE_SAMESITE='Lax'
-SESSION_COOKIE_SECURE=True
-SESSION_COOKIE_SAMESITE='Lax'
+DEBUG = True
+CSRF_COOKIE_SECURE = False  
+CSRF_COOKIE_HTTPONLY = False  
+CSRF_COOKIE_SAMESITE = 'Lax'  
+SESSION_COOKIE_SECURE = False  
 SESSION_COOKIE_HTTPONLY = True
-
+SESSION_COOKIE_SAMESITE = 'Lax'  
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'homebabacom',
-        'USER': 'naseeb',
-        'PASSWORD': 'DatabaseNaseebPassword',
-        'HOST': 'localhost',
-        'PORT': '',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+
+
+# DEBUG = False
+# CSRF_COOKIE_SECURE=True
+# CSRF_COOKIE_HTTPONLY=True
+# CSRF_COOKIE_SAMESITE='Lax'
+# SESSION_COOKIE_SECURE=True
+# SESSION_COOKIE_SAMESITE='Lax'
+# SESSION_COOKIE_HTTPONLY = True
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'homebabacom',
+#         'USER': 'naseeb',
+#         'PASSWORD': 'DatabaseNaseebPassword',
+#         'HOST': 'localhost',
+#         'PORT': '',
+#     }
+# }
 
 
 CORS_ALLOWED_ORIGINS = [
