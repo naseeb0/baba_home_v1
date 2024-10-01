@@ -1,6 +1,7 @@
 from .base import *
 
 DEBUG = False  # Disable debug mode in production
+print("Loading production settings...")
 
 ALLOWED_HOSTS = [
     '143.198.34.20', 
