@@ -1,4 +1,5 @@
 print("Loading production settings...")
+
 from .base import *
 
 DEBUG = False  # Disable debug mode in production
