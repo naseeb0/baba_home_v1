@@ -88,22 +88,14 @@ class PreConstructionSerializer(serializers.ModelSerializer):
         return preconstruction
     
     def update(self, instance, validated_data):
-        developer_data = validated_data.pop('developer', None)
-        if developer_data:
-            developer, created = Developer.objects.update_or_create(
-                name=developer_data.get('name', instance.developer.name),
-                defaults=developer_data
-            )
-            instance.developer = developer
+        if 'developer' in validated_data:
+            instance.developer = validated_data.pop('developer')
 
-        city_data = validated_data.pop('city', None)
-        if city_data:
-            city, created = City.objects.update_or_create(
-                name=city_data.get('name', instance.city.name),
-                defaults=city_data
-            )
-            instance.city = city
+         # Handle city field
+        if 'city' in validated_data:
+            instance.city = validated_data.pop('city')
 
+        # Update other fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 

@@ -60,4 +60,21 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'email']  # Include any fields you need
 
-        
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'company', 'phone', 'address']
+        extra_kwargs = {
+            'username': {'required': False},
+            'company': {'required': False},
+            'phone': {'required': False},
+            'address': {'required': False},
+        }
+
+    def update(self, instance, validated_data):
+        instance.username = validated_data.get('username', instance.username)
+        instance.company = validated_data.get('company', instance.company)
+        instance.phone = validated_data.get('phone', instance.phone)
+        instance.address = validated_data.get('address', instance.address)
+        instance.save()
+        return instance
