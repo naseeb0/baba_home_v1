@@ -1,5 +1,5 @@
 from django.contrib import admin
-from preconstruction.models import PreConstruction, Developer, City, PreConstructionImage
+from preconstruction.models import PreConstruction, Developer, City, PreConstructionImage, PreConstructionFloorPlans
 
 # @admin.register(PreConstruction)
 # class PreConstructionAdmin(admin.ModelAdmin):
@@ -47,3 +47,4 @@ admin.site.register(Developer);
 
 admin.site.register(PreConstructionImage);
 admin.site.register(City);
+admin.site.register(PreConstructionFloorPlans);

@@ -52,7 +52,7 @@ class PreConstruction(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, related_name='preconstructions',null=True)
     is_featured = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
-    
+    floorplan = models.ImageField(upload_to='floorplans/', blank=True, null=True, default='')
     def __str__(self):
         return self.project_name
     
@@ -71,3 +71,8 @@ class City(models.Model):
 class PreConstructionImage(models.Model):
     preconstruction = models.ForeignKey(PreConstruction, on_delete=models.CASCADE, related_name="images")
     image = models.ImageField(null=True, blank=True, upload_to='preconstruction_images/', default="")
+
+
+class PreConstructionFloorPlans(models.Model):
+    preconstruction = models.ForeignKey(PreConstruction, on_delete=models.CASCADE, related_name="floorplans")
+    floorplan = models.ImageField(null=True, blank=True, upload_to='floorplans/', default="")

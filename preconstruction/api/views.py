@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from preconstruction.models import PreConstruction, Developer, City, PreConstructionImage
+from preconstruction.models import PreConstruction, Developer, City, PreConstructionImage,PreConstructionFloorPlans
 from preconstruction.api.serializers import PreConstructionSerializer, DeveloperSerializer, CitySerializer
 from rest_framework import generics, status
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -54,6 +54,13 @@ class precon_details(generics.RetrieveUpdateDestroyAPIView):
                     preconstruction=updated_instance,
                     image=image
                 )
+
+            uploaded_floorplans = request.FILES.getlist('uploaded_floorplans')
+            for floorplan in uploaded_floorplans:
+                PreConstructionFloorPlans.objects.create(
+                    preconstruction=updated_instance,
+                    floorplan=floorplan
+                )
             
             return Response(self.get_serializer(updated_instance).data, status=status.HTTP_200_OK)
         
@@ -88,5 +95,16 @@ class PreConstructionImageDeleteView(generics.DestroyAPIView):
         image = self.get_object()
 
         image.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class PreconstructionFloorPlanDeleteView(generics.DestroyAPIView):
+    queryset = PreConstructionFloorPlans.objects.all()
+    permission_classes = []
+
+    def delete(self, request, *args, **kwargs):
+        floorplan = self.get_object()
+
+        floorplan.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)

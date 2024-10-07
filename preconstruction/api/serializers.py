@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from preconstruction.models import PreConstruction, Developer, City, PreConstructionImage
+from preconstruction.models import PreConstruction, Developer, City, PreConstructionImage,PreConstructionFloorPlans
 
 class CitySerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,6 +16,11 @@ class PreConstructionImageSerializer(serializers.ModelSerializer):
         model = PreConstructionImage
         fields = ["id", "preconstruction", "image"]
 
+class PreConstructionFloorplanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PreConstructionFloorPlans
+        fields = ["id", "preconstruction", "floorplan"]
+
 class DeveloperSerializer(serializers.ModelSerializer):
     class Meta:
         model = Developer
@@ -27,7 +32,13 @@ class DeveloperSerializer(serializers.ModelSerializer):
 
 class PreConstructionSerializer(serializers.ModelSerializer):
     images = PreConstructionImageSerializer(many=True, read_only=True)
+    floorplans = PreConstructionFloorplanSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(
+        child=serializers.ImageField(max_length=1000000, allow_empty_file=False, use_url=False),
+        write_only=True,
+        required=False
+    )
+    uploaded_floorplans = serializers.ListField(
         child=serializers.ImageField(max_length=1000000, allow_empty_file=False, use_url=False),
         write_only=True,
         required=False
@@ -43,7 +54,8 @@ class PreConstructionSerializer(serializers.ModelSerializer):
             'id', 'created', 'meta_title', 'meta_description', 'project_name', 'slug', 'storeys', 'total_units',
             'price_starts', 'price_end', 'description', 'project_address', 'postal_code', 'latitude',
             'longitude', 'occupancy', 'status', 'project_type', 'street_map', 'developer', 'developer_name',
-            'city', 'city_name', 'images', "uploaded_images", 'user', 'is_featured', 'is_verified'
+            'city', 'city_name', 'images', "uploaded_images", 'user', 'is_featured', 'is_verified','floorplans',
+            'uploaded_floorplans'
         ]
         read_only_fields = ['user']
 
@@ -51,6 +63,7 @@ class PreConstructionSerializer(serializers.ModelSerializer):
             'latitude': {'required': False},
             'longitude': {'required': False},
             'images': {'required': False},
+            'floorplans': {'required': False},
             'slug': {'required': False},
             'occupancy': {'required': False},
             'total_units': {'required': False},
@@ -77,6 +90,7 @@ class PreConstructionSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images", [])
+        uploaded_floorplans = validated_data.pop("uploaded_floorplans", [])
         preconstruction = PreConstruction.objects.create(**validated_data)
 
         for image in uploaded_images:
@@ -84,7 +98,11 @@ class PreConstructionSerializer(serializers.ModelSerializer):
                 preconstruction=preconstruction,
                 image=image,
             )
-
+        for floorplan in uploaded_floorplans:
+            PreConstructionFloorPlans.objects.create(
+                preconstruction=preconstruction,
+                floorplan=floorplan,
+            )
         return preconstruction
     
     def update(self, instance, validated_data):
