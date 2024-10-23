@@ -6,7 +6,14 @@ from vacationprojects.api.views import (
     ProjectListCreateView, ProjectDetailView,
     ProjectImageCreateView, ProjectDocumentCreateView,
 )
-
+from .views import (
+    BlogCategoryListCreateView,
+    BlogCategoryDetailView,
+    BlogPostListCreateView,
+    BlogPostDetailView,
+    LocationBasedBlogPostsView,
+    FeaturedBlogPostsView,RelatedPostsByLocationView
+)
 app_name = 'vacationprojects'
 
 urlpatterns = [
@@ -29,4 +36,14 @@ urlpatterns = [
     # Project Images and Documents
     path('projects/<int:project_pk>/images/', ProjectImageCreateView.as_view(), name='project-image-create'),
     path('projects/<int:project_pk>/documents/', ProjectDocumentCreateView.as_view(), name='project-document-create'),
+
+    path('blog/posts/', BlogPostListCreateView.as_view(), name='blog-post-list'),
+    path('blog/posts/<slug:slug>/', BlogPostDetailView.as_view(), name='blog-post-detail'),
+    
+    # Related and Location-based Posts
+    path('blog/posts/<slug:slug>/related-by-location/', RelatedPostsByLocationView.as_view(), name='blog-related-by-location'),
+    path('blog/by-location/', LocationBasedBlogPostsView.as_view(), name='blog-by-location'),
+    path('blog/featured/', FeaturedBlogPostsView.as_view(), name='blog-featured'),
+
+
 ]

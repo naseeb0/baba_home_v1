@@ -1,5 +1,6 @@
 import django_filters
 from vacationprojects.models import Project
+from vacationprojects.models import BlogPost
 
 class ProjectFilter(django_filters.FilterSet):
     price_min = django_filters.NumberFilter(field_name='price_starts', lookup_expr='gte')
@@ -18,3 +19,14 @@ class ProjectFilter(django_filters.FilterSet):
         model = Project
         fields = ['price_min', 'price_max', 'project_type', 'status', 'city', 
                  'country', 'builder', 'is_featured', 'is_verified']
+
+class BlogPostFilter(django_filters.FilterSet):
+    category = django_filters.NumberFilter(field_name='categories__id')
+    country = django_filters.NumberFilter(field_name='countries__id')
+    city = django_filters.NumberFilter(field_name='cities__id')
+    created_after = django_filters.DateTimeFilter(field_name='created_at', lookup_expr='gte')
+    created_before = django_filters.DateTimeFilter(field_name='created_at', lookup_expr='lte')
+
+    class Meta:
+        model = BlogPost
+        fields = ['category', 'country', 'city', 'is_featured']

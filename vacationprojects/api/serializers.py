@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from vacationprojects.models import Builder, Country, City, Project, ProjectImage, ProjectDocument
+from vacationprojects.models import BlogPost, BlogCategory, Country, City
+from django.contrib.auth import get_user_model
 
 class BuilderSerializer(serializers.ModelSerializer):
     class Meta:
@@ -154,3 +156,93 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
             )
         
         return project
+    
+class BlogAuthorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = ['id', 'username', 'first_name', 'last_name']
+
+class BlogCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BlogCategory
+        fields = ['id', 'name', 'slug', 'description']
+
+class CountryBlogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Country
+        fields = ['id', 'name', 'country_lat', 'country_long']
+
+class CityBlogSerializer(serializers.ModelSerializer):
+    country = CountryBlogSerializer(read_only=True)
+    
+    class Meta:
+        model = City
+        fields = ['id', 'name', 'city_lat', 'city_long', 'country']
+
+class BlogListSerializer(serializers.ModelSerializer):
+    thumbnail_url = serializers.SerializerMethodField()
+    author = BlogAuthorSerializer(read_only=True)
+    categories = BlogCategorySerializer(many=True, read_only=True)
+    countries = CountryBlogSerializer(many=True, read_only=True)
+    cities = CityBlogSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = BlogPost
+        fields = [
+            'id', 'title', 'slug', 'meta_title', 'meta_description',
+            'thumbnail', 'thumbnail_url', 'excerpt', 'author',
+            'categories', 'countries', 'cities', 'created_at',
+            'is_featured', 'views_count'
+        ]
+    
+    def get_thumbnail_url(self, obj):
+        if obj.thumbnail:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.thumbnail.url)
+        return None
+
+class BlogDetailSerializer(serializers.ModelSerializer):
+    thumbnail_url = serializers.SerializerMethodField()
+    author = BlogAuthorSerializer(read_only=True)
+    categories = BlogCategorySerializer(many=True, read_only=True)
+    countries = CountryBlogSerializer(many=True, read_only=True)
+    cities = CityBlogSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = BlogPost
+        fields = [
+            'id', 'title', 'slug', 'meta_title', 'meta_description',
+            'thumbnail', 'thumbnail_url', 'content', 'excerpt',
+            'author', 'categories', 'countries', 'cities',
+            'created_at', 'updated_at', 'is_featured', 
+            'is_published', 'views_count'
+        ]
+    
+    def get_thumbnail_url(self, obj):
+        if obj.thumbnail:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.thumbnail.url)
+        return None
+        
+    def create(self, validated_data):
+        categories_data = self.context['request'].data.getlist('categories', [])
+        countries_data = self.context['request'].data.getlist('countries', [])
+        cities_data = self.context['request'].data.getlist('cities', [])
+        
+        blog_post = BlogPost.objects.create(**validated_data)
+        
+        # Add categories
+        if categories_data:
+            blog_post.categories.set(categories_data)
+            
+        # Add countries
+        if countries_data:
+            blog_post.countries.set(countries_data)
+            
+        # Add cities
+        if cities_data:
+            blog_post.cities.set(cities_data)
+            
+        return blog_post

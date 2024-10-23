@@ -105,38 +105,65 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+
 TINYMCE_DEFAULT_CONFIG = {
-    'height': 360,
-    'width': 'auto',
+    'height': 500,
+    'width': '100%',
     'cleanup_on_startup': True,
     'custom_undo_redo_levels': 20,
     'selector': 'textarea',
     'theme': 'silver',
+    'skin': 'oxide',  # Important for dark mode compatibility
     'plugins': '''
-        textcolor save link image media preview codesample contextmenu
-        table code lists fullscreen insertdatetime nonbreaking
-        contextmenu directionality searchreplace wordcount visualblocks
-        visualchars code fullscreen autolink lists charmap print hr
-        anchor pagebreak
-        ''',
+        advlist autolink lists link image charmap print preview anchor
+        searchreplace visualblocks code fullscreen
+        insertdatetime media table paste code help wordcount
+        emoticons spellchecker
+    ''',
     'toolbar1': '''
-        fullscreen preview bold italic underline | fontselect,
-        fontsizeselect | forecolor backcolor | alignleft alignright |
-        aligncenter alignjustify | indent outdent | bullist numlist table |
-        | link image media | codesample |
-        ''',
+        undo redo | formatselect | bold italic backcolor | 
+        alignleft aligncenter alignright alignjustify |
+        bullist numlist outdent indent | image | removeformat | help |
+        code fullscreen
+    ''',
     'toolbar2': '''
-        visualblocks visualchars |
-        charmap hr pagebreak nonbreaking anchor | code |
-        ''',
-    'contextmenu': 'formats | link image',
+        visualblocks preview | forecolor | emoticons | table |
+        fontselect | fontsizeselect
+    ''',
     'menubar': True,
     'statusbar': True,
+    'content_css': 'default',
+    # This is important for Unfold dark mode
+    'content_style': '''
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+            font-size: 16px;
+            color: #333;
+            background-color: #fff;
+        }
+    ''',
+    'browser_spellcheck': True,
+    'contextmenu': 'link image table',
+    'setup': '''function(editor) {
+        editor.on('change', function() {
+            editor.save();
+        });
+        editor.on('init', function() {
+            editor.getDoc().body.style.fontSize = '16px';
+            editor.getDoc().body.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif';
+        });
+    }''',
 }
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
-USE_I18N = True
-USE_TZ = True
+
+TINYMCE_COMPRESSOR = False
+UNFOLD = {
+    "SITE_TITLE": "HOMEBABA",
+    "SITE_HEADER": "HOMEBABA",
+    "STYLES": [
+        "admin/css/custom_admin.css",
+    ],
+}
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')

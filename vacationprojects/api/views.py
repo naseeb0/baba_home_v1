@@ -8,9 +8,16 @@ from .serializers import (
     ProjectListSerializer, ProjectDetailSerializer,
     ProjectImageSerializer, ProjectDocumentSerializer
 )
+from .filters import BlogPostFilter
 from .permissions import IsOwnerOrReadOnly
 from .filters import ProjectFilter
-
+from .serializers import (
+    BlogListSerializer, BlogDetailSerializer,
+    BlogCategorySerializer
+)
+from vacationprojects.models import BlogPost, BlogCategory
+from .pagination import BlogPostPagination
+from .utils import count_reading_time
 class BuilderListCreateView(generics.ListCreateAPIView):
     queryset = Builder.objects.all()
     serializer_class = BuilderSerializer
@@ -104,3 +111,131 @@ class ProjectDocumentCreateView(generics.CreateAPIView):
     def perform_create(self, serializer):
         project = Project.objects.get(pk=self.kwargs['project_pk'])
         serializer.save(project=project)
+    
+class BlogCategoryListCreateView(generics.ListCreateAPIView):
+    queryset = BlogCategory.objects.all()
+    serializer_class = BlogCategorySerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
+
+class BlogCategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = BlogCategory.objects.all()
+    serializer_class = BlogCategorySerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    lookup_field = 'slug'
+
+class BlogPostListCreateView(generics.ListCreateAPIView):
+    queryset = BlogPost.objects.select_related(
+        'author'
+    ).prefetch_related(
+        'categories',
+        'countries',
+        'cities',
+        'cities__country'
+    ).filter(is_published=True)
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_class = BlogPostFilter
+    search_fields = ['title', 'content', 'excerpt']
+    ordering_fields = ['created_at', 'views_count']
+    pagination_class = BlogPostPagination
+    
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return BlogDetailSerializer
+        return BlogListSerializer
+    
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+class BlogPostDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = BlogPost.objects.select_related(
+        'author'
+    ).prefetch_related(
+        'categories',
+        'countries',
+        'cities',
+        'cities__country'
+    )
+    serializer_class = BlogDetailSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    lookup_field = 'slug'
+    
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.views_count += 1
+        instance.save()
+        
+        # Get related posts
+        related_posts = BlogPost.objects.filter(
+            is_published=True,
+            categories__in=instance.categories.all()
+        ).exclude(
+            id=instance.id
+        ).distinct()[:3]
+        
+        serializer = self.get_serializer(instance)
+        related_serializer = BlogListSerializer(
+            related_posts, 
+            many=True,
+            context={'request': request}
+        )
+        
+        data = serializer.data
+        data['related_posts'] = related_serializer.data
+        return Response(data)
+
+class RelatedPostsByLocationView(generics.ListAPIView):
+    serializer_class = BlogListSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    pagination_class = BlogPostPagination
+
+    def get_queryset(self):
+        blog_post = BlogPost.objects.get(slug=self.kwargs['slug'])
+        return BlogPost.objects.filter(
+            is_published=True,
+            countries__in=blog_post.countries.all()
+        ).exclude(
+            id=blog_post.id
+        ).distinct()[:3]
+
+class LocationBasedBlogPostsView(generics.ListAPIView):
+    serializer_class = BlogListSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    pagination_class = BlogPostPagination
+    
+    def get_queryset(self):
+        queryset = BlogPost.objects.filter(is_published=True)
+        country_id = self.request.query_params.get('country', None)
+        city_id = self.request.query_params.get('city', None)
+        
+        if country_id:
+            queryset = queryset.filter(countries__id=country_id)
+        if city_id:
+            queryset = queryset.filter(cities__id=city_id)
+            
+        return queryset.select_related(
+            'author'
+        ).prefetch_related(
+            'categories',
+            'countries',
+            'cities',
+            'cities__country'
+        )
+
+class FeaturedBlogPostsView(generics.ListAPIView):
+    queryset = BlogPost.objects.filter(
+        is_featured=True,
+        is_published=True
+    ).select_related(
+        'author'
+    ).prefetch_related(
+        'categories',
+        'countries',
+        'cities',
+        'cities__country'
+    )
+    serializer_class = BlogListSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    pagination_class = BlogPostPagination

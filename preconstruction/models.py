@@ -83,6 +83,7 @@ class BlogPost(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True, blank=True, editable=False)
     thumbnail = models.ImageField(upload_to='blog_thumbnails/', blank=True, null=True)
+
     meta_title = models.CharField(max_length=100, blank=True)
     meta_description = models.CharField(max_length=200, blank=True)
     content = HTMLField()

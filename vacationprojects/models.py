@@ -112,3 +112,85 @@ class ProjectDocument(models.Model):
     
     def __str__(self):
         return f"{self.title} - {self.project.project_name}"
+
+class BlogCategory(models.Model):
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(unique=True, blank=True)
+    description = models.TextField(blank=True)
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        verbose_name_plural = "Blog Categories"
+
+class BlogPost(models.Model):
+    title = models.CharField(max_length=200)
+    slug = models.SlugField(unique=True, blank=True)
+    meta_title = models.CharField(max_length=100)
+    meta_description = models.CharField(max_length=200)
+    thumbnail = models.ImageField(upload_to='blog_thumbnails/')
+    content = HTMLField(
+        verbose_name="Blog Content",
+        help_text="Use the rich text editor to format your content"
+    )
+    excerpt = models.TextField(
+        max_length=500, 
+        blank=True,
+        help_text="A short summary of the blog post"
+    )
+    
+    # Category relationships
+    categories = models.ManyToManyField(
+        'BlogCategory', 
+        related_name='posts',
+        blank=True
+    )
+    
+    # Location relationships
+    countries = models.ManyToManyField(
+        'Country',
+        related_name='blog_posts',
+        blank=True
+    )
+    cities = models.ManyToManyField(
+        'City',
+        related_name='blog_posts',
+        blank=True
+    )
+    
+    # Author and timestamps
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='blog_posts'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    # Status fields
+    is_featured = models.BooleanField(default=False)
+    is_published = models.BooleanField(default=True)
+    views_count = models.PositiveIntegerField(default=0)
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.title)
+            counter = 1
+            self.slug = base_slug
+            while BlogPost.objects.filter(slug=self.slug).exists():
+                self.slug = f"{base_slug}-{counter}"
+                counter += 1
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return self.title
+    
+    class Meta:
+        ordering = ['-created_at']
