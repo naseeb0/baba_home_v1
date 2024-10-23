@@ -1,7 +1,7 @@
+from unfold.admin import ModelAdmin
 from django.contrib import admin
 from preconstruction.models import PreConstruction, Developer, City, PreConstructionImage, PreConstructionFloorPlans
 from .models import BlogPost
-
 # @admin.register(PreConstruction)
 # class PreConstructionAdmin(admin.ModelAdmin):
 #     list_display = (
@@ -50,7 +50,7 @@ admin.site.register(PreConstructionImage);
 admin.site.register(City);
 admin.site.register(PreConstructionFloorPlans);
 @admin.register(BlogPost)
-class BlogPostAdmin(admin.ModelAdmin):
+class BlogPostAdmin(ModelAdmin):
     list_display = ('title', 'created_at', 'is_featured', 'views_count')
     list_filter = ('is_featured', 'created_at')
     search_fields = ('title', 'content')

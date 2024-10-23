@@ -1,3 +1,4 @@
+from unfold.admin import ModelAdmin
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
@@ -29,14 +30,14 @@ class CityInline(admin.TabularInline):
     fields = ['name', 'city_lat', 'city_long']
 
 @admin.register(Builder)
-class BuilderAdmin(admin.ModelAdmin):
+class BuilderAdmin(ModelAdmin):
     list_display = ['name', 'website', 'slug']
     search_fields = ['name', 'website']
     prepopulated_fields = {'slug': ('name',)}
     list_per_page = 20
 
 @admin.register(Country)
-class CountryAdmin(admin.ModelAdmin):
+class CountryAdmin(ModelAdmin):
     list_display = ['name', 'country_lat', 'country_long', 'city_count']
     search_fields = ['name']
     inlines = [CityInline]
@@ -46,14 +47,14 @@ class CountryAdmin(admin.ModelAdmin):
     city_count.short_description = 'Number of Cities'
 
 @admin.register(City)
-class CityAdmin(admin.ModelAdmin):
+class CityAdmin(ModelAdmin):
     list_display = ['name', 'country', 'city_lat', 'city_long']
     list_filter = ['country']
     search_fields = ['name', 'country__name']
     autocomplete_fields = ['country']
 
 @admin.register(Project)
-class ProjectAdmin(admin.ModelAdmin):
+class ProjectAdmin(ModelAdmin):
     list_display = [
         'project_name', 'builder', 'city', 'status',
         'price_range', 'is_featured', 'is_verified'
@@ -121,7 +122,7 @@ class ProjectAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 @admin.register(ProjectImage)
-class ProjectImageAdmin(admin.ModelAdmin):
+class ProjectImageAdmin(ModelAdmin):
     list_display = ['project', 'image_preview', 'title']
     list_filter = ['project']
     search_fields = ['project__project_name', 'title']
@@ -133,7 +134,7 @@ class ProjectImageAdmin(admin.ModelAdmin):
     image_preview.short_description = 'Preview'
 
 @admin.register(ProjectDocument)
-class ProjectDocumentAdmin(admin.ModelAdmin):
+class ProjectDocumentAdmin(ModelAdmin):
     list_display = ['title', 'project', 'document_type', 'upload_date']
     list_filter = ['document_type', 'upload_date', 'project']
     search_fields = ['title', 'project__project_name']
