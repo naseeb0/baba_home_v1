@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from preconstruction.models import PreConstruction, Developer, City, PreConstructionImage,PreConstructionFloorPlans
-from preconstruction.api.serializers import PreConstructionSerializer, DeveloperSerializer, CitySerializer
+from preconstruction.models import PreConstruction, Developer, City, PreConstructionImage,PreConstructionFloorPlans, BlogPost, BlogImage
+from preconstruction.api.serializers import PreConstructionSerializer, DeveloperSerializer, CitySerializer, BlogImageSerializer, BlogPostSerializer
 from rest_framework import generics, status
 from rest_framework.parsers import MultiPartParser, FormParser
 from preconstruction.api.filters import PreConstructionFilter
@@ -108,3 +108,56 @@ class PreconstructionFloorPlanDeleteView(generics.DestroyAPIView):
         floorplan.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class BlogPostListCreate(generics.ListCreateAPIView):
+    serializer_class = BlogPostSerializer
+    permission_classes = []
+    
+    def get_queryset(self):
+        queryset = BlogPost.objects.all()
+        
+        # Filter by featured
+        is_featured = self.request.query_params.get('featured', None)
+        if is_featured is not None:
+            queryset = queryset.filter(is_featured=is_featured.lower() == 'true')
+            
+        # Search by title or content
+        search = self.request.query_params.get('search', None)
+        if search:
+            queryset = queryset.filter(
+                Q(title__icontains=search) |
+                Q(content__icontains=search)
+            )
+            
+        return queryset.order_by('-created_at')
+
+class BlogPostRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
+    queryset = BlogPost.objects.all()
+    serializer_class = BlogPostSerializer
+    lookup_field = 'slug'
+    permission_classes = []
+    
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.views_count += 1
+        instance.save()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+class BlogImageCreate(generics.CreateAPIView):
+    serializer_class = BlogImageSerializer
+    permission_classes = []
+    
+    def perform_create(self, serializer):
+        blog_post = BlogPost.objects.get(slug=self.kwargs['slug'])
+        serializer.save(blog=blog_post)
+
+class BlogImageDelete(generics.DestroyAPIView):
+    queryset = BlogImage.objects.all()
+    permission_classes = []
+    lookup_field = 'id'
+    
+    def get_queryset(self):
+        return BlogImage.objects.filter(
+            blog__slug=self.kwargs['slug']
+        )

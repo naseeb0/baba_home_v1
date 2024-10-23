@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from preconstruction.models import PreConstruction, Developer, City, PreConstructionImage,PreConstructionFloorPlans
+from preconstruction.models import PreConstruction, Developer, City, PreConstructionImage,PreConstructionFloorPlans, BlogImage, BlogPost
 
 class CitySerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,6 +16,33 @@ class PreConstructionImageSerializer(serializers.ModelSerializer):
         model = PreConstructionImage
         fields = ["id", "preconstruction", "image"]
 
+
+class BlogImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BlogImage
+        fields = ['id', 'image', 'caption']
+
+class BlogPostSerializer(serializers.ModelSerializer):
+    images = BlogImageSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = BlogPost
+        fields = [
+            'id',
+            'title',
+            'slug',
+            'meta_title',
+            'meta_description',
+            'content',
+            'featured_image',
+            'created_at',
+            'updated_at',
+            'is_featured',
+            'views_count',
+            'images'
+        ]
+        read_only_fields = ['slug', 'created_at', 'updated_at']
+        
 class PreConstructionFloorplanSerializer(serializers.ModelSerializer):
     class Meta:
         model = PreConstructionFloorPlans

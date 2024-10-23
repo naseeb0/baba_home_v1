@@ -1,6 +1,7 @@
 from django.db import models
 import json
 from django.conf import settings
+from django.utils.text import slugify
 
 class Developer(models.Model):
     name = models.CharField(max_length=300)
@@ -76,3 +77,54 @@ class PreConstructionImage(models.Model):
 class PreConstructionFloorPlans(models.Model):
     preconstruction = models.ForeignKey(PreConstruction, on_delete=models.CASCADE, related_name="floorplans")
     floorplan = models.ImageField(null=True, blank=True, upload_to='floorplans/', default="")
+
+class BlogPost(models.Model):
+    title = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=200, unique=True, blank=True, editable=False)
+    meta_title = models.CharField(max_length=100, blank=True)
+    meta_description = models.CharField(max_length=200, blank=True)
+    content = models.TextField()
+    featured_image = models.ImageField(upload_to='blog_images/', blank=True, null=True)
+    
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_featured = models.BooleanField(default=False)
+    views_count = models.PositiveIntegerField(default=0)
+    
+    def __str__(self):
+        return self.title
+    
+    def save(self, *args, **kwargs):
+        # Create base slug from title
+        base_slug = slugify(self.title)
+        
+        # If this is a new post (no ID) or the title has changed
+        if not self.id or self._state.adding:
+            # Check for existing slugs
+            counter = 1
+            self.slug = base_slug
+            # While a post with current slug exists, append counter to slug
+            while BlogPost.objects.filter(slug=self.slug).exists():
+                self.slug = f"{base_slug}-{counter}"
+                counter += 1
+                
+        if not self.meta_title:
+            self.meta_title = self.title[:100]
+            
+        super().save(*args, **kwargs)
+    
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['-created_at']),
+            models.Index(fields=['slug']),
+        ]
+
+class BlogImage(models.Model):
+    blog = models.ForeignKey(BlogPost, on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(upload_to='blog_images/')
+    caption = models.CharField(max_length=200, blank=True)
+    
+    def __str__(self):
+        return f"Image for {self.blog.title}"
