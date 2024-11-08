@@ -3,6 +3,7 @@ import json
 from django.conf import settings
 from django.utils.text import slugify
 from tinymce.models import HTMLField
+from django.utils.text import slugify
 
 class Developer(models.Model):
     name = models.CharField(max_length=300)
@@ -55,6 +56,17 @@ class PreConstruction(models.Model):
     is_featured = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
     floorplan = models.ImageField(upload_to='floorplans/', blank=True, null=True, default='')
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.project_name)
+            # Handle duplicate slugs
+            original_slug = self.slug
+            counter = 1
+            while PreConstruction.objects.filter(slug=self.slug).exists():
+                self.slug = f"{original_slug}-{counter}"
+                counter += 1
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.project_name
     

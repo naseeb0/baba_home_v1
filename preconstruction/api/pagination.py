@@ -2,11 +2,11 @@ from rest_framework.pagination import PageNumberPagination, LimitOffsetPaginatio
 
 
 class PreconstructionPagination(PageNumberPagination):
-    page_size = 10
+    page_size = 20
     page_size_query_param = 'page'
     max_page_size = 1000
     page_size_query_param = 'size'
-    max_page_size = 40
+    max_page_size = 100
 
 # class PreconstrctionOfPage(LimitOffsetPagination):
 #     default_limit = 10

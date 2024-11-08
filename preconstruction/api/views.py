@@ -35,7 +35,7 @@ class preconstruction_list(generics.ListCreateAPIView):
 
 class precon_details(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = []
-    queryset = PreConstruction.objects.all().order_by('id')
+    queryset = PreConstruction.objects.all()
     serializer_class = PreConstructionSerializer
     parser_classes = (MultiPartParser, FormParser)
 
