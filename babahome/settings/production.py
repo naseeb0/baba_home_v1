@@ -36,17 +36,19 @@ SESSION_COOKIE_SAMESITE = 'Lax'
 # CORS settings for production
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOWED_ORIGINS = [
-    'http://admin.homebaba.com',
-    'https://admin.homebaba.com',
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3001',
-    'https://homebaba.com',
-    'http://homebaba.com',
-    'https://www.homebaba.com',
-]
+# CORS_ALLOWED_ORIGINS = [
+#     'http://admin.homebaba.com',
+#     'https://admin.homebaba.com',
+#     'http://localhost:3000',
+#     'http://127.0.0.1:3000',
+#     'http://localhost:3001',
+#     'http://127.0.0.1:3001',
+#     'https://homebaba.com',
+#     'http://homebaba.com',
+#     'https://www.homebaba.com',
+# ]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 # CSRF trusted origins for production
 CSRF_TRUSTED_ORIGINS = [
