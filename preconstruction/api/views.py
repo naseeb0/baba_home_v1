@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from preconstruction.models import PreConstruction, Developer, City, PreConstructionImage,PreConstructionFloorPlans, BlogPost
-from preconstruction.api.serializers import PreConstructionSerializer, DeveloperSerializer, CitySerializer, BlogPostSerializer
+from preconstruction.models import PreConstruction, Developer, City, PreConstructionImage,PreConstructionFloorPlans, BlogPost, FloorPlan
+from preconstruction.api.serializers import PreConstructionSerializer, DeveloperSerializer, CitySerializer, BlogPostSerializer, FloorPlanSerializer
 from rest_framework import generics, status
 from rest_framework.parsers import MultiPartParser, FormParser
 from preconstruction.api.filters import PreConstructionFilter
@@ -33,6 +33,11 @@ class preconstruction_list(generics.ListCreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+from rest_framework import generics, status
+from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
+from django.shortcuts import get_object_or_404
+
 class precon_details(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = []
     queryset = PreConstruction.objects.all()
@@ -41,6 +46,9 @@ class precon_details(generics.RetrieveUpdateDestroyAPIView):
 
     def put(self, request, *args, **kwargs):
         instance = self.get_object()
+        
+        # Get floor plans to delete if any
+        floor_plans_to_delete = request.data.getlist('delete_floor_plans', [])
         
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         
@@ -54,17 +62,64 @@ class precon_details(generics.RetrieveUpdateDestroyAPIView):
                     preconstruction=updated_instance,
                     image=image
                 )
-
-            uploaded_floorplans = request.FILES.getlist('uploaded_floorplans')
-            for floorplan in uploaded_floorplans:
-                PreConstructionFloorPlans.objects.create(
-                    preconstruction=updated_instance,
-                    floorplan=floorplan
-                )
+            
+            # Handle new floor plans with categories
+            uploaded_floor_plans = request.FILES.items()
+            for field_name, image in uploaded_floor_plans:
+                if field_name.startswith('floor_plan_'):
+                    category = field_name.replace('floor_plan_', '').upper()
+                    FloorPlan.objects.create(
+                        preconstruction=updated_instance,
+                        category=category,
+                        image=image,
+                        name=f"{updated_instance.project_name} - {category}"
+                    )
+            
+            # Delete floor plans if requested
+            if floor_plans_to_delete:
+                FloorPlan.objects.filter(
+                    id__in=floor_plans_to_delete,
+                    preconstruction=updated_instance
+                ).delete()
             
             return Response(self.get_serializer(updated_instance).data, status=status.HTTP_200_OK)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class FloorPlanOperations(generics.GenericAPIView):
+    permission_classes = []
+    queryset = PreConstruction.objects.all()
+
+    def post(self, request, pk):
+        action_type = request.data.get('action_type')
+        preconstruction = self.get_object()
+
+        if action_type == 'delete_specific':
+            floor_plan_ids = request.data.getlist('floor_plan_ids', [])
+            if floor_plan_ids:
+                deleted_count = FloorPlan.objects.filter(
+                    id__in=floor_plan_ids,
+                    preconstruction=preconstruction
+                ).delete()[0]
+                
+                return Response({
+                    'message': f'Successfully deleted {deleted_count} floor plans',
+                    'deleted_count': deleted_count
+                }, status=status.HTTP_200_OK)
+            
+            return Response({
+                'error': 'No floor plan IDs provided'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        elif action_type == 'delete_all':
+            deleted_count = preconstruction.floor_plan_images.all().delete()[0]
+            return Response({
+                'message': f'Successfully deleted all {deleted_count} floor plans',
+                'deleted_count': deleted_count
+            }, status=status.HTTP_200_OK)
+
+        return Response({
+            'error': 'Invalid action_type'
+        }, status=status.HTTP_400_BAD_REQUEST) 
     
 class developer_list(generics.ListCreateAPIView):
     permission_classes = [];

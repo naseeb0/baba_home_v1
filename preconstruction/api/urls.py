@@ -1,8 +1,10 @@
 from django.urls import path, include
-from preconstruction.api.views import preconstruction_list,PreConstructionImageDeleteView, developer_list, precon_details, developer_details, city_list, city_details,PreconstructionFloorPlanDeleteView, BlogPostListCreate, BlogPostRetrieveUpdateDestroy
+from preconstruction.api.views import preconstruction_list,PreConstructionImageDeleteView, developer_list, precon_details, developer_details, city_list, city_details,PreconstructionFloorPlanDeleteView, BlogPostListCreate, BlogPostRetrieveUpdateDestroy, FloorPlanOperations
 urlpatterns = [
     path('preconstruction/', preconstruction_list.as_view(), name='preconstruction-list'),
-    path('preconstruction/<int:pk>/', precon_details.as_view(), name='preconstruction-details'),
+    # path('preconstruction/<int:pk>/', precon_details.as_view(), name='preconstruction-details'),
+   path('preconstruction/<int:pk>/', precon_details.as_view(), name='precon-detail'),
+    path('preconstruction/<int:pk>/floor-plans/', FloorPlanOperations.as_view(), name='floor-plan-operations'),
     path('developer', developer_list.as_view(), name='developer-list'),
     path('developer/<int:pk>/', developer_details.as_view(), name='developer-details'),
     path('city/', city_list.as_view(), name='city-list'),

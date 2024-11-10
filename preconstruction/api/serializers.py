@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from preconstruction.models import PreConstruction, Developer, City, PreConstructionImage,PreConstructionFloorPlans,BlogPost
+from preconstruction.models import PreConstruction, Developer, City, PreConstructionImage,PreConstructionFloorPlans,BlogPost,FloorPlan
 
 class CitySerializer(serializers.ModelSerializer):
     class Meta:
@@ -17,10 +17,10 @@ class PreConstructionImageSerializer(serializers.ModelSerializer):
         fields = ["id", "preconstruction", "image"]
 
 
-class PreConstructionFloorplanSerializer(serializers.ModelSerializer):
+class FloorPlanSerializer(serializers.ModelSerializer):
     class Meta:
-        model = PreConstructionFloorPlans
-        fields = ["id", "preconstruction", "floorplan"]
+        model = FloorPlan
+        fields = ['id', 'preconstruction', 'category', 'image', 'name', 'square_footage', 'created']
 
 class DeveloperSerializer(serializers.ModelSerializer):
     class Meta:
@@ -33,13 +33,13 @@ class DeveloperSerializer(serializers.ModelSerializer):
 
 class PreConstructionSerializer(serializers.ModelSerializer):
     images = PreConstructionImageSerializer(many=True, read_only=True)
-    floorplans = PreConstructionFloorplanSerializer(many=True, read_only=True)
+    floor_plan_images = FloorPlanSerializer(many=True, read_only=True)  # Changed from floorplans
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(max_length=1000000, allow_empty_file=False, use_url=False),
         write_only=True,
         required=False
     )
-    uploaded_floorplans = serializers.ListField(
+    uploaded_floor_plans = serializers.DictField(  # Changed from ListField to DictField
         child=serializers.ImageField(max_length=1000000, allow_empty_file=False, use_url=False),
         write_only=True,
         required=False
@@ -55,8 +55,8 @@ class PreConstructionSerializer(serializers.ModelSerializer):
             'id', 'created', 'meta_title', 'meta_description', 'project_name', 'slug', 'storeys', 'total_units',
             'price_starts', 'price_end', 'description', 'project_address', 'postal_code', 'latitude',
             'longitude', 'occupancy', 'status', 'project_type', 'street_map', 'developer', 'developer_name',
-            'city', 'city_name', 'images', "uploaded_images", 'user', 'is_featured', 'is_verified','floorplans',
-            'uploaded_floorplans'
+            'city', 'city_name', 'images', "uploaded_images", 'user', 'is_featured', 'is_verified',
+            'floor_plan_images', 'uploaded_floor_plans'  # Changed field names
         ]
         read_only_fields = ['user']
 
@@ -64,7 +64,7 @@ class PreConstructionSerializer(serializers.ModelSerializer):
             'latitude': {'required': False},
             'longitude': {'required': False},
             'images': {'required': False},
-            'floorplans': {'required': False},
+            'floor_plan_images': {'required': False},  # Changed
             'slug': {'required': False},
             'occupancy': {'required': False},
             'total_units': {'required': False},
@@ -91,28 +91,45 @@ class PreConstructionSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images", [])
-        uploaded_floorplans = validated_data.pop("uploaded_floorplans", [])
+        uploaded_floor_plans = validated_data.pop("uploaded_floor_plans", {})
         preconstruction = PreConstruction.objects.create(**validated_data)
 
+        # Handle regular images
         for image in uploaded_images:
             PreConstructionImage.objects.create(
                 preconstruction=preconstruction,
                 image=image,
             )
-        for floorplan in uploaded_floorplans:
-            PreConstructionFloorPlans.objects.create(
+        
+        # Handle floor plans
+        # Expected format: {"1BED": image1, "2BED": image2, ...}
+        for category, image in uploaded_floor_plans.items():
+            FloorPlan.objects.create(
                 preconstruction=preconstruction,
-                floorplan=floorplan,
+                category=category,
+                image=image,
+                name=f"{preconstruction.project_name} - {category}"
             )
+
         return preconstruction
     
     def update(self, instance, validated_data):
+        uploaded_floor_plans = validated_data.pop("uploaded_floor_plans", {})
+        
         if 'developer' in validated_data:
             instance.developer = validated_data.pop('developer')
 
-         # Handle city field
         if 'city' in validated_data:
             instance.city = validated_data.pop('city')
+
+        # Handle new floor plans
+        for category, image in uploaded_floor_plans.items():
+            FloorPlan.objects.create(
+                preconstruction=instance,
+                category=category,
+                image=image,
+                name=f"{instance.project_name} - {category}"
+            )
 
         # Update other fields
         for attr, value in validated_data.items():

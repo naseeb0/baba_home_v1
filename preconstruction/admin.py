@@ -1,69 +1,248 @@
 from unfold.admin import ModelAdmin
 from django.contrib import admin
-from preconstruction.models import PreConstruction, Developer, City, PreConstructionImage, PreConstructionFloorPlans
-from .models import BlogPost
-# @admin.register(PreConstruction)
-# class PreConstructionAdmin(admin.ModelAdmin):
-#     list_display = (
-#         'project_name', 'status', 'project_type', 'developer', 'city', 'price_starts', 'price_end'
-#     )
-#     search_fields = ('project_name', 'description', 'developer__name', 'city__name')
-#     list_filter = ('status', 'project_type', 'developer', 'city')
-#     prepopulated_fields = {"slug": ("project_name",)}  # Automatically generate slug
-#     fieldsets = (
-#         (None, {
-#             'fields': ('project_name', 'slug', 'storeys', 'total_units', 'price_starts', 'price_end')
-#         }),
-#         ('Location Details', {
-#             'fields': ('project_address', 'postal_code', 'latitude', 'longitude', 'city')
-#         }),
-#         ('Project Details', {
-#             'fields': ('description', 'status', 'project_type', 'street_map', 'developer')
-#         }),
-#     )
-#     readonly_fields = ('slug',)  # Make slug field read-only
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
+from django import forms
+from django.db import models
+from preconstruction.models import (
+    PreConstruction, Developer, City, PreConstructionImage, 
+    PreConstructionFloorPlans, FloorPlan, BlogPost
+)
+from tinymce.widgets import TinyMCE
+from tinymce.models import HTMLField
 
-# @admin.register(Developer)
-# class DeveloperAdmin(admin.ModelAdmin):
-#     list_display = ('name', 'website', 'slug')
-#     search_fields = ('name', 'website', 'slug')
+@admin.register(Developer)
+class DeveloperAdmin(ModelAdmin):
+    list_display = ('name', 'website', 'slug')
+    search_fields = ('name', 'details')
+    fields = ('name', 'website', 'details', 'slug')
+    prepopulated_fields = {'slug': ('name',)}
 
-# @admin.register(City)
-# class CityAdmin(admin.ModelAdmin):
-#     list_display = ('name', 'city_lat', 'city_long')
-#     search_fields = ('name', 'city_lat', 'city_long')
+class PreConstructionImageInline(admin.TabularInline):
+    model = PreConstructionImage
+    extra = 3
+    fields = ('image', 'get_image_preview')  # Removed delete_image
+    readonly_fields = ('get_image_preview',)
+    can_delete = True  # This enables the deletion checkbox
+    show_change_link = True
 
-# @admin.register(PreConstructionImage)
-# class PreConstructionImageAdmin(admin.ModelAdmin):
-#     list_display = ('preconstruction', 'imagealt', 'images')
-#     search_fields = ('imagealt', 'preconstruction__project_name')
-#     list_filter = ('preconstruction',)
+    def get_image_preview(self, obj):
+        if obj and obj.image:
+            return mark_safe(f'''
+                <img src="{obj.image.url}" style="max-height: 100px;"/>
+                <br>
+                <input type="checkbox" name="_delete_{obj.id}" id="delete_{obj.id}" class="delete-checkbox">
+                <label for="delete_{obj.id}">Mark for deletion</label>
+            ''')
+        return ""
+    get_image_preview.short_description = 'Preview'
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.select_related('preconstruction')
 
-admin.register(City);
+    def has_delete_permission(self, request, obj=None):
+        return True
 
-admin.site.register(PreConstruction);
+class FloorPlanForm(forms.ModelForm):
+    class Meta:
+        model = FloorPlan
+        fields = ['category', 'image', 'name', 'square_footage']
 
-admin.site.register(Developer);
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['category'] = forms.ChoiceField(
+            choices=[
+                ("1BED", "1 Bedroom"),
+                ("2BED", "2 Bedroom"),
+                ("3BED", "3 Bedroom"),
+                ("4BED", "4 Bedroom"),
+                ("OTHER", "Other")
+            ]
+        )
 
-admin.site.register(PreConstructionImage);
-admin.site.register(City);
-admin.site.register(PreConstructionFloorPlans);
-@admin.register(BlogPost)
-class BlogPostAdmin(ModelAdmin):
-    list_display = ('title', 'created_at', 'is_featured', 'views_count')
-    list_filter = ('is_featured', 'created_at')
-    search_fields = ('title', 'content')
-    
+class FloorPlanInline(admin.TabularInline):
+    model = FloorPlan
+    form = FloorPlanForm
+    extra = 1
+    fields = ['category', 'image', 'get_image_preview', 'name', 'square_footage']
+    readonly_fields = ('get_image_preview',)
+    can_delete = True  # Enable deletion for inline
+    show_change_link = True
+
+    def get_image_preview(self, obj):
+        if obj and obj.image:
+            return mark_safe(f'''
+                <img src="{obj.image.url}" style="max-height: 100px;"/>
+                <br>
+                <a href="#" onclick="if (confirm('Are you sure you want to delete this floor plan?')) {{
+                    fetch('/admin/preconstruction/floorplan/{obj.id}/delete/', {{
+                        method: 'POST',
+                        headers: {{'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value}}
+                    }}).then(() => window.location.reload());
+                    return false;
+                }}">Delete Floor Plan</a>
+            ''')
+        return ""
+    get_image_preview.short_description = 'Preview'
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.select_related('preconstruction')
+
+    def has_delete_permission(self, request, obj=None):
+        return True
+
+@admin.register(PreConstruction)
+class PreConstructionAdmin(ModelAdmin):
+    list_display = ('project_name', 'status', 'project_type', 'developer', 'city', 
+                   'is_featured', 'is_verified', 'created', 'main_image_preview')
+    list_filter = ('status', 'project_type', 'developer', 'city', 'is_featured', 'is_verified')
+    search_fields = ('project_name', 'description', 'project_address', 'postal_code')
+    inlines = [PreConstructionImageInline, FloorPlanInline]
+    formfield_overrides = {
+        HTMLField: {'widget': TinyMCE()},
+    }
     fieldsets = (
-        (None, {
-            'fields': ('title', 'thumbnail', 'content')
+        ('Meta Information', {
+            'fields': ('meta_title', 'meta_description', 'project_name', 'slug')
         }),
-        ('SEO', {
-            'fields': ('meta_title', 'meta_description'),
-            'classes': ('collapse',)
+        ('Project Details', {
+            'fields': (
+                'storeys', 'total_units', 'price_starts', 'price_end',
+                'description', 'project_address', 'postal_code',
+                'latitude', 'longitude', 'occupancy', 'status',
+                'project_type', 'street_map'
+            )
+        }),
+        ('Relationships', {
+            'fields': ('developer', 'city', 'user')
+        }),
+        ('Main Image', {
+            'fields': ('image', 'main_image_preview')
         }),
         ('Settings', {
-            'fields': ('is_featured',),
+            'fields': ('is_featured', 'is_verified')
         })
     )
+    readonly_fields = ('main_image_preview',)
+
+    def main_image_preview(self, obj):
+        if obj and obj.image:
+            delete_url = ''
+            if obj.image:
+                delete_url = f'''
+                    <br>
+                    <a href="#" onclick="if (confirm('Are you sure you want to delete the main image?')) {{
+                        document.getElementById('id_image').value = '';
+                        document.getElementById('id_image-clear_id').checked = true;
+                        return false;
+                    }}">Delete Main Image</a>
+                '''
+            return mark_safe(f'<img src="{obj.image.url}" style="max-height: 150px;"/>{delete_url}')
+        return ""
+    main_image_preview.short_description = "Main Image Preview"
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        if change:
+            instance = form.instance
+            seen_categories = set()
+            for plan in instance.floor_plan_images.all():
+                if plan.category in seen_categories:
+                    plan.delete()
+                else:
+                    seen_categories.add(plan.category)
+
+@admin.register(City)
+class CityAdmin(ModelAdmin):
+    list_display = ('name', 'city_lat', 'city_long')
+    search_fields = ('name', 'city_details')
+    fields = ('name', 'city_lat', 'city_long', 'city_details')
+
+@admin.register(PreConstructionImage)
+class PreConstructionImageAdmin(ModelAdmin):
+    list_display = ('preconstruction', 'image_preview', 'delete_action')
+    list_filter = ('preconstruction',)
+    fields = ('preconstruction', 'image', 'image_preview')
+    readonly_fields = ('image_preview',)
+
+    def delete_action(self, obj):
+        if obj.id:
+            return mark_safe(f'<a href="/admin/preconstruction/preconstructionimage/{obj.id}/delete/" class="deletelink">Delete</a>')
+        return ""
+    delete_action.short_description = "Actions"
+
+    def image_preview(self, obj):
+        if obj and obj.image:
+            return mark_safe(f'<img src="{obj.image.url}" style="max-height: 150px;"/>')
+        return ""
+    image_preview.short_description = "Image Preview"
+
+@admin.register(PreConstructionFloorPlans)
+class PreConstructionFloorPlansAdmin(ModelAdmin):
+    list_display = ('preconstruction', 'floorplan_preview', 'delete_action')
+    list_filter = ('preconstruction',)
+    fields = ('preconstruction', 'floorplan', 'floorplan_preview')
+    readonly_fields = ('floorplan_preview',)
+
+    def delete_action(self, obj):
+        if obj.id:
+            return mark_safe(f'<a href="/admin/preconstruction/preconstructionfloorplans/{obj.id}/delete/" class="deletelink">Delete</a>')
+        return ""
+    delete_action.short_description = "Actions"
+
+    def floorplan_preview(self, obj):
+        if obj and obj.floorplan:
+            return mark_safe(f'<img src="{obj.floorplan.url}" style="max-height: 150px;"/>')
+        return ""
+    floorplan_preview.short_description = "Floorplan Preview"
+
+@admin.register(FloorPlan)
+class FloorPlanAdmin(ModelAdmin):
+    form = FloorPlanForm
+    list_display = ('preconstruction', 'category', 'name', 'square_footage', 'image_preview', 'delete_action')
+    list_filter = ('category', 'preconstruction')
+    search_fields = ['name', 'preconstruction__project_name']
+    fields = ('preconstruction', 'category', 'image', 'image_preview', 'name', 'square_footage')
+    readonly_fields = ('image_preview',)
+
+    def delete_action(self, obj):
+        if obj.id:
+            return mark_safe(f'<a href="/admin/preconstruction/floorplan/{obj.id}/delete/" class="deletelink">Delete</a>')
+        return ""
+    delete_action.short_description = "Actions"
+
+    def image_preview(self, obj):
+        if obj and obj.image:
+            return mark_safe(f'<img src="{obj.image.url}" style="max-height: 150px;"/>')
+        return ""
+    image_preview.short_description = "Image Preview"
+
+@admin.register(BlogPost)
+class BlogPostAdmin(ModelAdmin):
+    list_display = ('title', 'created_at', 'updated_at', 'is_featured', 'views_count', 'thumbnail_preview')
+    list_filter = ('is_featured', 'created_at')
+    search_fields = ('title', 'content', 'meta_title')
+    fields = (
+        'title', 'slug', 'thumbnail', 'thumbnail_preview',
+        'meta_title', 'meta_description',
+        'content', 'is_featured', 'views_count'
+    )
+    readonly_fields = ('created_at', 'updated_at', 'views_count', 'slug', 'thumbnail_preview')
+
+    def thumbnail_preview(self, obj):
+        if obj and obj.thumbnail:
+            delete_url = ''
+            if obj.thumbnail:
+                delete_url = f'''
+                    <br>
+                    <a href="#" onclick="if (confirm('Are you sure you want to delete the thumbnail?')) {{
+                        document.getElementById('id_thumbnail').value = '';
+                        document.getElementById('id_thumbnail-clear_id').checked = true;
+                        return false;
+                    }}">Delete Thumbnail</a>
+                '''
+            return mark_safe(f'<img src="{obj.thumbnail.url}" style="max-height: 150px;"/>{delete_url}')
+        return ""
+    thumbnail_preview.short_description = "Thumbnail Preview"
