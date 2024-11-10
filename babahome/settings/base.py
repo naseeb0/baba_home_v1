@@ -182,7 +182,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': '/home/naseeb/baba_home_v1',  # Ensure this path is writable
+            'filename': '/home/naseeb/baba_home_v1/logs/django.log',  # Update this line
         },
     },
     'loggers': {
