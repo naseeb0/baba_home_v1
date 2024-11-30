@@ -25,26 +25,33 @@ class FloorPlanSerializer(serializers.ModelSerializer):
 class DeveloperSerializer(serializers.ModelSerializer):
     class Meta:
         model = Developer
-        fields = ['id', 'name', 'website', 'details', 'slug']
+        fields = ['id', 'name', 'website', 'details', 'slug', 'sales_office_address', 'email', 'phone', 'commission', 'sales_person_name', 'sales_person_contact']
         extra_kwargs = {
             'slug': {'required': False},
             'id': {'required': False},
+            'sales_office_address': {'required': False},
+            'email': {'required': False},
+            'phone': {'required': False},
+            'commission': {'required': False},
+            'sales_person_name': {'required': False},
+            'sales_person_contact': {'required': False},
         }
 
 class PreConstructionSerializer(serializers.ModelSerializer):
     images = PreConstructionImageSerializer(many=True, read_only=True)
-    floor_plan_images = FloorPlanSerializer(many=True, read_only=True)  # Changed from floorplans
+    floor_plan_images = FloorPlanSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(max_length=1000000, allow_empty_file=False, use_url=False),
         write_only=True,
         required=False
     )
-    uploaded_floor_plans = serializers.DictField(  # Changed from ListField to DictField
+    uploaded_floor_plans = serializers.DictField(
         child=serializers.ImageField(max_length=1000000, allow_empty_file=False, use_url=False),
         write_only=True,
         required=False
     )
     developer = serializers.PrimaryKeyRelatedField(queryset=Developer.objects.all())
+    developer_details = DeveloperSerializer(source='developer', read_only=True)
     city = serializers.PrimaryKeyRelatedField(queryset=City.objects.all())
     city_name = serializers.CharField(source='city.name', read_only=True)
     developer_name = serializers.CharField(source='developer.name', read_only=True)
@@ -53,10 +60,10 @@ class PreConstructionSerializer(serializers.ModelSerializer):
         model = PreConstruction
         fields = [
             'id', 'created', 'meta_title', 'meta_description', 'project_name', 'slug', 'storeys', 'total_units',
-            'price_starts', 'price_end', 'description', 'project_address', 'postal_code', 'latitude',
-            'longitude', 'occupancy', 'status', 'project_type', 'street_map', 'developer', 'developer_name',
+            'price_starts', 'price_end', 'description', 'deposit_structure', 'project_completion', 'project_address', 'postal_code', 'latitude',
+            'longitude', 'occupancy', 'status', 'project_type', 'street_map', 'developer', 'developer_name', 'developer_details',
             'city', 'city_name', 'images', "uploaded_images", 'user', 'is_featured', 'is_verified',
-            'floor_plan_images', 'uploaded_floor_plans'  # Changed field names
+            'floor_plan_images', 'uploaded_floor_plans'
         ]
         read_only_fields = ['user']
 
@@ -64,7 +71,7 @@ class PreConstructionSerializer(serializers.ModelSerializer):
             'latitude': {'required': False},
             'longitude': {'required': False},
             'images': {'required': False},
-            'floor_plan_images': {'required': False},  # Changed
+            'floor_plan_images': {'required': False},
             'slug': {'required': False},
             'occupancy': {'required': False},
             'total_units': {'required': False},

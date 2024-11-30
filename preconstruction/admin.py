@@ -13,9 +13,10 @@ from tinymce.models import HTMLField
 
 @admin.register(Developer)
 class DeveloperAdmin(ModelAdmin):
-    list_display = ('name', 'website', 'slug')
-    search_fields = ('name', 'details')
-    fields = ('name', 'website', 'details', 'slug')
+    list_display = ('name', 'website', 'email', 'phone', 'sales_person_name', 'commission', 'slug')
+    search_fields = ('name', 'details', 'email', 'sales_person_name', 'sales_office_address')
+    fields = ('name', 'website', 'details', 'slug', 'sales_office_address', 'email', 
+              'phone', 'commission', 'sales_person_name', 'sales_person_contact')
     prepopulated_fields = {'slug': ('name',)}
 
 class PreConstructionImageInline(admin.TabularInline):
@@ -71,7 +72,7 @@ class FloorPlanInline(admin.TabularInline):
     show_change_link = True
 
     def get_image_preview(self, obj):
-        if obj and obj.image:
+        if obj and obj.image and hasattr(obj.image, 'url'):
             return mark_safe(f'''
                 <img src="{obj.image.url}" style="max-height: 100px;"/>
                 <br>
@@ -93,6 +94,11 @@ class FloorPlanInline(admin.TabularInline):
     def has_delete_permission(self, request, obj=None):
         return True
 
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        if db_field.name == 'image':
+            kwargs['widget'] = forms.ClearableFileInput(attrs={'accept': 'image/*'})
+        return super().formfield_for_dbfield(db_field, request, **kwargs)
+
 @admin.register(PreConstruction)
 class PreConstructionAdmin(ModelAdmin):
     list_display = ('project_name', 'status', 'project_type', 'developer', 'city', 
@@ -110,7 +116,7 @@ class PreConstructionAdmin(ModelAdmin):
         ('Project Details', {
             'fields': (
                 'storeys', 'total_units', 'price_starts', 'price_end',
-                'description', 'project_address', 'postal_code',
+                'description', 'deposit_structure', 'project_completion', 'project_address', 'postal_code',
                 'latitude', 'longitude', 'occupancy', 'status',
                 'project_type', 'street_map'
             )
@@ -128,31 +134,28 @@ class PreConstructionAdmin(ModelAdmin):
     readonly_fields = ('main_image_preview',)
 
     def main_image_preview(self, obj):
-        if obj and obj.image:
-            delete_url = ''
-            if obj.image:
-                delete_url = f'''
-                    <br>
-                    <a href="#" onclick="if (confirm('Are you sure you want to delete the main image?')) {{
-                        document.getElementById('id_image').value = '';
-                        document.getElementById('id_image-clear_id').checked = true;
-                        return false;
-                    }}">Delete Main Image</a>
-                '''
-            return mark_safe(f'<img src="{obj.image.url}" style="max-height: 150px;"/>{delete_url}')
+        if obj.image:
+            return mark_safe(f'<img src="{obj.image.url}" style="max-height: 100px;"/>')
         return ""
     main_image_preview.short_description = "Main Image Preview"
 
     def save_related(self, request, form, formsets, change):
         super().save_related(request, form, formsets, change)
-        if change:
-            instance = form.instance
-            seen_categories = set()
-            for plan in instance.floor_plan_images.all():
-                if plan.category in seen_categories:
-                    plan.delete()
-                else:
-                    seen_categories.add(plan.category)
+        
+        # Get the instance after it's been saved
+        instance = form.instance
+        
+        # Handle floor plan formset specifically
+        for formset in formsets:
+            if isinstance(formset, FloorPlanInline):
+                for floor_plan_form in formset.forms:
+                    if floor_plan_form.cleaned_data and not floor_plan_form.cleaned_data.get('DELETE', False):
+                        # Only process if we have cleaned data and it's not marked for deletion
+                        if floor_plan_form.instance.pk is None:  # This is a new floor plan
+                            if floor_plan_form.cleaned_data.get('image'):
+                                floor_plan = floor_plan_form.save(commit=False)
+                                floor_plan.preconstruction = instance
+                                floor_plan.save()
 
 @admin.register(City)
 class CityAdmin(ModelAdmin):

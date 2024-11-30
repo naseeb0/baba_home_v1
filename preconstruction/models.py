@@ -10,6 +10,12 @@ class Developer(models.Model):
     website = models.CharField(max_length=300, null=True, blank=True)
     details = models.TextField(max_length=300, null=True, blank=True)
     slug = models.SlugField(max_length=200, null=True, blank=True)
+    sales_office_address = models.CharField(max_length=500, null=True, blank=True)
+    email = models.EmailField(max_length=254, null=True, blank=True)
+    phone = models.CharField(max_length=20, null=True, blank=True)
+    commission = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    sales_person_name = models.CharField(max_length=300, null=True, blank=True)
+    sales_person_contact = models.CharField(max_length=20, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -40,6 +46,8 @@ class PreConstruction(models.Model):
     price_starts = models.FloatField(null=True, blank=True)
     price_end = models.FloatField(null=True, blank=True)
     description = HTMLField()
+    deposit_structure = HTMLField(null=True, blank=True)
+    project_completion = models.CharField(max_length=200, null=True, blank=True)
     project_address = models.CharField(max_length=400)
     postal_code = models.CharField(max_length=200)  
     latitude = models.CharField(max_length=200)
