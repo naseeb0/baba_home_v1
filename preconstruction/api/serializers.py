@@ -60,7 +60,7 @@ class PreConstructionSerializer(serializers.ModelSerializer):
         model = PreConstruction
         fields = [
             'id', 'created', 'meta_title', 'meta_description', 'project_name', 'slug', 'storeys', 'total_units',
-            'price_starts', 'price_end', 'description', 'deposit_structure', 'project_completion', 'project_address', 'postal_code', 'latitude',
+            'price_starts', 'price_end', 'description', 'deposit_structure', 'incentives', 'project_completion', 'project_address', 'postal_code', 'latitude',
             'longitude', 'occupancy', 'status', 'project_type', 'street_map', 'developer', 'developer_name', 'developer_details',
             'city', 'city_name', 'images', "uploaded_images", 'user', 'is_featured', 'is_verified',
             'floor_plan_images', 'uploaded_floor_plans'

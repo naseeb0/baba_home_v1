@@ -116,7 +116,7 @@ class PreConstructionAdmin(ModelAdmin):
         ('Project Details', {
             'fields': (
                 'storeys', 'total_units', 'price_starts', 'price_end',
-                'description', 'deposit_structure', 'project_completion', 'project_address', 'postal_code',
+                'description', 'deposit_structure', 'incentives', 'project_completion', 'project_address', 'postal_code',
                 'latitude', 'longitude', 'occupancy', 'status',
                 'project_type', 'street_map'
             )

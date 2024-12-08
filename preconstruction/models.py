@@ -27,7 +27,8 @@ class PreConstruction(models.Model):
         ("Upcoming", "Upcoming"),
         ("Selling", "Selling"),
         ("Planning Phase", "Planning Phase"),
-        ("Sold out", "Sold out")
+        ("Sold out", "Sold out"),
+        ("Move-in ready", "Move-in ready"),
     ]
     PROJECT_CHOICES = [
         ("Condo", "Condo"),
@@ -47,6 +48,7 @@ class PreConstruction(models.Model):
     price_end = models.FloatField(null=True, blank=True)
     description = HTMLField()
     deposit_structure = HTMLField(null=True, blank=True)
+    incentives = HTMLField(null=True, blank=True)
     project_completion = models.CharField(max_length=200, null=True, blank=True)
     project_address = models.CharField(max_length=400)
     postal_code = models.CharField(max_length=200)  
