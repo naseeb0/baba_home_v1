@@ -6,6 +6,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 SECRET_KEY = 'django-insecure-q2#xvi%d*p%!-aqqkx3hisuvp=w!3q1eyyeeu-=&fff!sa(aqy'
 
+# Debug configuration
+DEBUG = False  # Default to False, override in development.py
+
+# Media files configuration
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Static files configuration
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'babahome', 'static'),
+]
+
 INSTALLED_APPS = [
     'unfold',
     'django.contrib.admin',
@@ -25,9 +39,8 @@ INSTALLED_APPS = [
     'django_summernote',
     'tinymce',
     'vacationprojects',
-
-
 ]
+
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -91,21 +104,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'babahome.wsgi.application'
 
-# Media files configuration
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# Static files configuration
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-
-# Serve media files in development
-if DEBUG:
-    INSTALLED_APPS += ['django.contrib.staticfiles']
-    STATICFILES_DIRS = [
-        os.path.join(BASE_DIR, 'static'),
-    ]
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -120,7 +118,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 
 TINYMCE_DEFAULT_CONFIG = {
     'height': 500,
