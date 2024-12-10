@@ -37,6 +37,10 @@ SESSION_COOKIE_SAMESITE = 'Lax'
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = [
     "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
     "OPTIONS",
 ]
 CORS_ALLOW_HEADERS = [
@@ -44,20 +48,29 @@ CORS_ALLOW_HEADERS = [
     "accept-encoding",
     "authorization",
     "content-type",
+    "dnt",
     "origin",
     "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
 ]
-CORS_ALLOWED_ORIGINS = [
-    'http://admin.homebaba.com',
-    'https://admin.homebaba.com',
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3001',
-    'https://homebaba.com',
-    'http://homebaba.com',
-    'https://www.homebaba.com',
-]
+
+# Allow all origins temporarily for debugging
+CORS_ALLOW_ALL_ORIGINS = True  # For development/debugging only
+# CORS_ALLOWED_ORIGINS = [
+#     'http://admin.homebaba.com',
+#     'https://admin.homebaba.com',
+#     'http://localhost:3000',
+#     'http://127.0.0.1:3000',
+#     'http://localhost:3001',
+#     'http://127.0.0.1:3001',
+#     'https://homebaba.com',
+#     'http://homebaba.com',
+#     'https://www.homebaba.com',
+# ]
+
+# Media files configuration
+MEDIA_URL = 'https://admin.homebaba.com/media/'  # Update this to your domain
 
 # CSRF trusted origins for production
 CSRF_TRUSTED_ORIGINS = [

@@ -18,9 +18,19 @@ class PreConstructionImageSerializer(serializers.ModelSerializer):
 
 
 class FloorPlanSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
+    def get_image_url(self, obj):
+        if obj.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.image.url)
+            return obj.image.url
+        return None
+
     class Meta:
         model = FloorPlan
-        fields = ['id', 'preconstruction', 'category', 'image', 'name', 'square_footage', 'price', 'created']
+        fields = ['id', 'preconstruction', 'category', 'image', 'image_url', 'name', 'square_footage', 'price', 'created']
 
 class DeveloperSerializer(serializers.ModelSerializer):
     class Meta:

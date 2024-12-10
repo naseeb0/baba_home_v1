@@ -124,7 +124,7 @@ class FloorPlan(models.Model):
     preconstruction = models.ForeignKey(
         PreConstruction, 
         on_delete=models.CASCADE,
-        related_name='floor_plan_images'  # Changed from 'floorplans' to 'floor_plan_images'
+        related_name='floor_plan_images'  
     )
     category = models.CharField(
         max_length=50, 
@@ -149,6 +149,11 @@ class FloorPlan(models.Model):
         blank=True
     )
     created = models.DateTimeField(auto_now_add=True)
+
+    def get_image_url(self):
+        if self.image:
+            return f"{settings.MEDIA_URL}{self.image}"
+        return None
 
     class Meta:
         ordering = ['category', 'created']
