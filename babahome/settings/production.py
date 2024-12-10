@@ -69,7 +69,7 @@ CORS_ALLOW_ALL_ORIGINS = True  # For development/debugging only
 #     'https://www.homebaba.com',
 # ]
 
-# Media files configuration
+# Media files configurations
 MEDIA_URL = 'https://admin.homebaba.com/media/'  # Update this to your domain
 
 # CSRF trusted origins for production
