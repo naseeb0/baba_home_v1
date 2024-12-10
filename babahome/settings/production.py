@@ -35,7 +35,18 @@ SESSION_COOKIE_SAMESITE = 'Lax'
 
 # CORS settings for production
 CORS_ALLOW_CREDENTIALS = True
-
+CORS_ALLOW_METHODS = [
+    "GET",
+    "OPTIONS",
+]
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "origin",
+    "user-agent",
+]
 CORS_ALLOWED_ORIGINS = [
     'http://admin.homebaba.com',
     'https://admin.homebaba.com',
