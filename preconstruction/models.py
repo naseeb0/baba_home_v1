@@ -142,6 +142,12 @@ class FloorPlan(models.Model):
         null=True,
         blank=True
     )
+    price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True
+    )
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:

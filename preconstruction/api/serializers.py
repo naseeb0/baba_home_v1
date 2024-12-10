@@ -20,7 +20,7 @@ class PreConstructionImageSerializer(serializers.ModelSerializer):
 class FloorPlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = FloorPlan
-        fields = ['id', 'preconstruction', 'category', 'image', 'name', 'square_footage', 'created']
+        fields = ['id', 'preconstruction', 'category', 'image', 'name', 'square_footage', 'price', 'created']
 
 class DeveloperSerializer(serializers.ModelSerializer):
     class Meta:

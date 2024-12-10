@@ -66,7 +66,7 @@ class FloorPlanInline(admin.TabularInline):
     model = FloorPlan
     form = FloorPlanForm
     extra = 1
-    fields = ['category', 'image', 'get_image_preview', 'name', 'square_footage']
+    fields = ['category', 'image', 'get_image_preview', 'name', 'square_footage', 'price']
     readonly_fields = ('get_image_preview',)
     can_delete = True  # Enable deletion for inline
     show_change_link = True
