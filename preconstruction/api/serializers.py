@@ -1,5 +1,69 @@
 from rest_framework import serializers
-from preconstruction.models import PreConstruction, Developer, City, PreConstructionImage,PreConstructionFloorPlans,BlogPost,FloorPlan
+from preconstruction.models import PreConstruction, Developer, City, PreConstructionImage,PreConstructionFloorPlans,BlogPost,FloorPlan, Feature, SampleAPS, Siteplan, FloorPlanDocs
+
+class FeatureSerializer(serializers.ModelSerializer):
+    file = serializers.SerializerMethodField()
+
+    def get_file(self, obj):
+        if obj.file:
+            return f'/media/{obj.file}'
+        return None
+
+    class Meta:
+        model = Feature
+        fields = ['id', 'preconstruction', 'title', 'description', 'file', 'created_at', 'updated_at']
+        read_only_fields = ['created_at', 'updated_at']
+
+class FloorPlanDocsSerializer(serializers.ModelSerializer):
+    file = serializers.SerializerMethodField()
+
+    def get_file(self, obj):
+        if obj.file:
+            return f'/media/{obj.file}'
+        return None
+
+    class Meta:
+        model = FloorPlanDocs
+        fields = ['id', 'preconstruction', 'title', 'description', 'file', 'created_at', 'updated_at']
+        read_only_fields = ['created_at', 'updated_at']
+
+class SampleAPSSerializer(serializers.ModelSerializer):
+    file = serializers.SerializerMethodField()
+
+    def get_file(self, obj):
+        if obj.file:
+            return f'/media/{obj.file}'
+        return None
+
+    class Meta:
+        model = SampleAPS
+        fields = ['id', 'preconstruction', 'title', 'description', 'file', 'created_at', 'updated_at']
+        read_only_fields = ['created_at', 'updated_at']
+
+class SiteplanSerializer(serializers.ModelSerializer):
+    file = serializers.SerializerMethodField()
+
+    def get_file(self, obj):
+        if obj.file:
+            return f'/media/{obj.file}'
+        return None
+
+    class Meta:
+        model = Siteplan
+        fields = ['id', 'preconstruction', 'title', 'description', 'file', 'created_at', 'updated_at']
+        read_only_fields = ['created_at', 'updated_at']
+
+class PreConstructionImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
+    def get_image(self, obj):
+        if obj.image:
+            return f'/media/{obj.image}'
+        return None
+
+    class Meta:
+        model = PreConstructionImage
+        fields = ["id", "preconstruction", "image"]
 
 class CitySerializer(serializers.ModelSerializer):
     class Meta:
@@ -10,27 +74,6 @@ class CitySerializer(serializers.ModelSerializer):
             'city_long': {'required': False},
             'id': {'required': False},
         }
-
-class PreConstructionImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PreConstructionImage
-        fields = ["id", "preconstruction", "image"]
-
-
-class FloorPlanSerializer(serializers.ModelSerializer):
-    image_url = serializers.SerializerMethodField()
-
-    def get_image_url(self, obj):
-        if obj.image:
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(obj.image.url)
-            return obj.image.url
-        return None
-
-    class Meta:
-        model = FloorPlan
-        fields = ['id', 'preconstruction', 'category', 'image', 'image_url', 'name', 'square_footage', 'price', 'created']
 
 class DeveloperSerializer(serializers.ModelSerializer):
     class Meta:
@@ -47,9 +90,25 @@ class DeveloperSerializer(serializers.ModelSerializer):
             'sales_person_contact': {'required': False},
         }
 
+class FloorPlanSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
+    def get_image_url(self, obj):
+        if obj.image:
+            return f'/media/{obj.image}'
+        return None
+
+    class Meta:
+        model = FloorPlan
+        fields = ['id', 'preconstruction', 'category', 'image', 'image_url', 'name', 'square_footage', 'price', 'created']
+
 class PreConstructionSerializer(serializers.ModelSerializer):
     images = PreConstructionImageSerializer(many=True, read_only=True)
     floor_plan_images = FloorPlanSerializer(many=True, read_only=True)
+    features = FeatureSerializer(many=True, read_only=True)
+    floorplan_docs = FloorPlanDocsSerializer(many=True, read_only=True)
+    sample_aps = SampleAPSSerializer(many=True, read_only=True)
+    siteplans = SiteplanSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(max_length=1000000, allow_empty_file=False, use_url=False),
         write_only=True,
@@ -70,10 +129,12 @@ class PreConstructionSerializer(serializers.ModelSerializer):
         model = PreConstruction
         fields = [
             'id', 'created', 'meta_title', 'meta_description', 'project_name', 'slug', 'storeys', 'total_units',
-            'price_starts', 'price_end', 'description', 'deposit_structure', 'incentives', 'project_completion', 'project_address', 'postal_code', 'latitude',
-            'longitude', 'occupancy', 'status', 'project_type', 'street_map', 'developer', 'developer_name', 'developer_details',
-            'city', 'city_name', 'images', "uploaded_images", 'user', 'is_featured', 'is_verified',
-            'floor_plan_images', 'uploaded_floor_plans'
+            'price_starts', 'price_end', 'description', 'deposit_structure', 'incentives', 'project_completion', 'project_address', 
+            'postal_code', 'latitude', 'longitude', 'occupancy', 'status', 'project_type', 'street_map', 
+            'developer', 'developer_name', 'developer_details', 'city', 'city_name', 
+            'images', 'uploaded_images', 'floor_plan_images', 'uploaded_floor_plans',
+            'features', 'floorplan_docs', 'sample_aps', 'siteplans',
+            'user', 'is_featured', 'is_verified'
         ]
         read_only_fields = ['user']
 
@@ -87,7 +148,6 @@ class PreConstructionSerializer(serializers.ModelSerializer):
             'total_units': {'required': False},
             'price_starts': {'required': False},
             'price_end': {'required': False},
-            'description': {'required': False},
             'project_address': {'required': False},
             'postal_code': {'required': False},
             'street_map': {'required': False},
@@ -154,13 +214,15 @@ class PreConstructionSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
-    
-from rest_framework import serializers
-
 
 class BlogPostSerializer(serializers.ModelSerializer):
     thumbnail_url = serializers.SerializerMethodField()
     
+    def get_thumbnail_url(self, obj):
+        if obj.thumbnail:
+            return f'/media/{obj.thumbnail}'
+        return None
+
     class Meta:
         model = BlogPost
         fields = [
@@ -178,8 +240,3 @@ class BlogPostSerializer(serializers.ModelSerializer):
             'views_count'
         ]
         read_only_fields = ['slug', 'created_at', 'updated_at', 'thumbnail_url']
-    
-    def get_thumbnail_url(self, obj):
-        if obj.thumbnail:
-            return self.context['request'].build_absolute_uri(obj.thumbnail.url)
-        return None

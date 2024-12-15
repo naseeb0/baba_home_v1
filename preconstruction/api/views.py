@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from preconstruction.models import PreConstruction, Developer, City, PreConstructionImage,PreConstructionFloorPlans, BlogPost, FloorPlan
-from preconstruction.api.serializers import PreConstructionSerializer, DeveloperSerializer, CitySerializer, BlogPostSerializer, FloorPlanSerializer
+from preconstruction.models import PreConstruction, Developer, City, PreConstructionImage,PreConstructionFloorPlans, BlogPost, FloorPlan, Feature, SampleAPS, Siteplan, FloorPlanDocs
+from preconstruction.api.serializers import PreConstructionSerializer, DeveloperSerializer, CitySerializer, BlogPostSerializer, FloorPlanSerializer, FeatureSerializer, SampleAPSSerializer, SiteplanSerializer, FloorPlanDocsSerializer
 from rest_framework import generics, status
 from rest_framework.parsers import MultiPartParser, FormParser
 from preconstruction.api.filters import PreConstructionFilter
@@ -13,9 +13,21 @@ from preconstruction.api.pagination import PreconstructionPagination
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from django.db.models import Q
 
 @method_decorator(csrf_exempt, name='dispatch')
 class preconstruction_list(generics.ListCreateAPIView):
+    """
+    API endpoint for listing and creating preconstruction projects.
+    
+    get:
+    Return a list of all preconstruction projects, with optional filtering and search.
+    
+    post:
+    Create a new preconstruction project.
+    """
     permission_classes = []
     serializer_class = PreConstructionSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter] 
@@ -40,6 +52,21 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from django.shortcuts import get_object_or_404
 
 class precon_details(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint for retrieving, updating, and deleting a specific preconstruction project.
+    
+    get:
+    Return details of a specific preconstruction project.
+    
+    patch:
+    Partially update a preconstruction project, including image and floor plan handling.
+    
+    put:
+    Update a preconstruction project (redirects to patch).
+    
+    delete:
+    Delete a preconstruction project.
+    """
     permission_classes = []
     queryset = PreConstruction.objects.all()
     serializer_class = PreConstructionSerializer
@@ -93,29 +120,56 @@ class precon_details(generics.RetrieveUpdateDestroyAPIView):
     def put(self, request, *args, **kwargs):
         return self.patch(request, *args, **kwargs)  # Redirect PUT to PATCH for consistency
 
-    
 class developer_list(generics.ListCreateAPIView):
+    """
+    API endpoint for listing and creating developers.
+    
+    get:
+    Return a list of all developers.
+    
+    post:
+    Create a new developer.
+    """
     permission_classes = [];
     queryset = Developer.objects.all()
     serializer_class = DeveloperSerializer
 
 class developer_details(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint for retrieving, updating, and deleting a specific developer.
+    """
     permission_classes = [];
     queryset = Developer.objects.all().order_by('id')
     serializer_class = DeveloperSerializer
 
 class city_list(generics.ListCreateAPIView):
+    """
+    API endpoint for listing and creating cities.
+    
+    get:
+    Return a list of all cities.
+    
+    post:
+    Create a new city.
+    """
     permission_classes = [];
     queryset = City.objects.all().order_by('id')
     serializer_class = CitySerializer
 
 class city_details(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint for retrieving, updating, and deleting a specific city.
+    """
     permission_classes = [];
     queryset = City.objects.all().order_by('id')
     serializer_class = CitySerializer
 
 
 class PreConstructionImageDeleteView(generics.DestroyAPIView):
+    """
+    API endpoint for deleting preconstruction images.
+    Handles both database record and physical file deletion.
+    """
     queryset = PreConstructionImage.objects.all()
     permission_classes = [AllowAny]
 
@@ -169,6 +223,10 @@ class PreConstructionImageDeleteView(generics.DestroyAPIView):
                 "error": str(e)
             }, status=status.HTTP_400_BAD_REQUEST)
 class PreconstructionFloorPlanDeleteView(generics.DestroyAPIView):
+    """
+    API endpoint for deleting floor plan images.
+    Handles both database record and physical file deletion.
+    """
     queryset = FloorPlan.objects.all()
     lookup_field = 'pk'
     permission_classes = [AllowAny]  # or remove this line to allow unauthenticated access
@@ -216,6 +274,15 @@ class PreconstructionFloorPlanDeleteView(generics.DestroyAPIView):
             }, status=status.HTTP_400_BAD_REQUEST)
     
 class BlogPostListCreate(generics.ListCreateAPIView):
+    """
+    API endpoint for listing and creating blog posts.
+    
+    get:
+    Return a list of all blog posts.
+    
+    post:
+    Create a new blog post.
+    """
     serializer_class = BlogPostSerializer
     permission_classes = []
     def get_queryset(self):
@@ -242,6 +309,10 @@ class BlogPostListCreate(generics.ListCreateAPIView):
         return context
 
 class BlogPostRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint for retrieving, updating, and deleting blog posts.
+    Uses slug field for lookups instead of primary key.
+    """
     queryset = BlogPost.objects.all()
     serializer_class = BlogPostSerializer
     permission_classes = []
@@ -258,3 +329,165 @@ class BlogPostRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
         instance.save()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+class PreconstructionList(generics.ListCreateAPIView):
+    """
+    API endpoint for listing and creating preconstruction projects.
+    
+    get:
+    Return a list of all preconstruction projects.
+    
+    post:
+    Create a new preconstruction project.
+    """
+    queryset = PreConstruction.objects.all()
+    serializer_class = PreConstructionSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        queryset = PreConstruction.objects.all()
+        return queryset
+
+class PreconstructionDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint for retrieving, updating, and deleting a preconstruction project.
+    """
+    queryset = PreConstruction.objects.all()
+    serializer_class = PreConstructionSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+class DeveloperList(generics.ListCreateAPIView):
+    """
+    API endpoint for listing and creating developers.
+    
+    get:
+    Return a list of all developers.
+    
+    post:
+    Create a new developer.
+    """
+    queryset = Developer.objects.all()
+    serializer_class = DeveloperSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+class DeveloperDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint for retrieving, updating, and deleting a developer.
+    """
+    queryset = Developer.objects.all()
+    serializer_class = DeveloperSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+class CityList(generics.ListCreateAPIView):
+    """
+    API endpoint for listing and creating cities.
+    
+    get:
+    Return a list of all cities.
+    
+    post:
+    Create a new city.
+    """
+    queryset = City.objects.all()
+    serializer_class = CitySerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+class CityDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint for retrieving, updating, and deleting a city.
+    """
+    queryset = City.objects.all()
+    serializer_class = CitySerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+class FeatureList(generics.ListCreateAPIView):
+    """
+    API endpoint for listing and creating features.
+    Supports filtering by preconstruction_id.
+    """
+    serializer_class = FeatureSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        queryset = Feature.objects.all()
+        preconstruction_id = self.request.query_params.get('preconstruction', None)
+        if preconstruction_id is not None:
+            queryset = queryset.filter(preconstruction_id=preconstruction_id)
+        return queryset
+
+class FeatureDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint for retrieving, updating and deleting a feature.
+    """
+    queryset = Feature.objects.all()
+    serializer_class = FeatureSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+class SampleAPSList(generics.ListCreateAPIView):
+    """
+    API endpoint for listing and creating sample APS documents.
+    Supports filtering by preconstruction_id.
+    """
+    serializer_class = SampleAPSSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        queryset = SampleAPS.objects.all()
+        preconstruction_id = self.request.query_params.get('preconstruction', None)
+        if preconstruction_id is not None:
+            queryset = queryset.filter(preconstruction_id=preconstruction_id)
+        return queryset
+
+class SampleAPSDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint for retrieving, updating and deleting a sample APS document.
+    """
+    queryset = SampleAPS.objects.all()
+    serializer_class = SampleAPSSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+class SiteplanList(generics.ListCreateAPIView):
+    """
+    API endpoint for listing and creating site plans.
+    Supports filtering by preconstruction_id.
+    """
+    serializer_class = SiteplanSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        queryset = Siteplan.objects.all()
+        preconstruction_id = self.request.query_params.get('preconstruction', None)
+        if preconstruction_id is not None:
+            queryset = queryset.filter(preconstruction_id=preconstruction_id)
+        return queryset
+
+class SiteplanDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint for retrieving, updating and deleting a site plan.
+    """
+    queryset = Siteplan.objects.all()
+    serializer_class = SiteplanSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+class FloorPlanDocsList(generics.ListCreateAPIView):
+    """
+    API endpoint for listing and creating floor plan documents.
+    Supports filtering by preconstruction_id.
+    """
+    serializer_class = FloorPlanDocsSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        queryset = FloorPlanDocs.objects.all()
+        preconstruction_id = self.request.query_params.get('preconstruction', None)
+        if preconstruction_id is not None:
+            queryset = queryset.filter(preconstruction_id=preconstruction_id)
+        return queryset
+
+class FloorPlanDocsDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint for retrieving, updating and deleting a floor plan document.
+    """
+    queryset = FloorPlanDocs.objects.all()
+    serializer_class = FloorPlanDocsSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]

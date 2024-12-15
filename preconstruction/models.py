@@ -4,6 +4,7 @@ from django.conf import settings
 from django.utils.text import slugify
 from tinymce.models import HTMLField
 from django.utils.text import slugify
+from django.core.validators import FileExtensionValidator
 
 class Developer(models.Model):
     name = models.CharField(max_length=300)
@@ -160,6 +161,87 @@ class FloorPlan(models.Model):
 
     def __str__(self):
         return f"{self.preconstruction.project_name} - {self.get_category_display()} - {self.name}"
+
+class FloorPlanDocs(models.Model):
+    preconstruction = models.ForeignKey(PreConstruction, on_delete=models.CASCADE, related_name='floorplan_docs')
+    title = models.CharField(max_length=200)
+    description = models.TextField(null=True, blank=True)
+    file = models.FileField(
+        upload_to='floorplan_docs/',
+        validators=[FileExtensionValidator(['pdf', 'jpg', 'jpeg', 'png', 'svg', 'doc', 'docx'])],
+        null=True,
+        blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Floor Plan Document"
+        verbose_name_plural = "Floor Plan Documents"
+
+    def __str__(self):
+        return f"{self.title} - {self.preconstruction.project_name}"
+
+class Feature(models.Model):
+    preconstruction = models.ForeignKey(PreConstruction, on_delete=models.CASCADE, related_name='features')
+    title = models.CharField(max_length=200)
+    description = models.TextField(null=True, blank=True)
+    file = models.FileField(
+        upload_to='features/',
+        validators=[FileExtensionValidator(['pdf', 'jpg', 'jpeg', 'png', 'svg', 'doc', 'docx'])],
+        null=True,
+        blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} - {self.preconstruction.project_name}"
+
+class SampleAPS(models.Model):
+    preconstruction = models.ForeignKey(PreConstruction, on_delete=models.CASCADE, related_name='sample_aps')
+    title = models.CharField(max_length=200)
+    description = models.TextField(null=True, blank=True)
+    file = models.FileField(
+        upload_to='sample_aps/',
+        validators=[FileExtensionValidator(['pdf', 'jpg', 'jpeg', 'png', 'svg', 'doc', 'docx'])],
+        null=True,
+        blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Sample APS"
+        verbose_name_plural = "Sample APS"
+
+    def __str__(self):
+        return f"{self.title} - {self.preconstruction.project_name}"
+
+class Siteplan(models.Model):
+    preconstruction = models.ForeignKey(PreConstruction, on_delete=models.CASCADE, related_name='siteplans')
+    title = models.CharField(max_length=200)
+    description = models.TextField(null=True, blank=True)
+    file = models.FileField(
+        upload_to='siteplans/',
+        validators=[FileExtensionValidator(['pdf', 'jpg', 'jpeg', 'png', 'svg', 'doc', 'docx'])],
+        null=True,
+        blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} - {self.preconstruction.project_name}"
+
 class City(models.Model):
 
     name = models.CharField(max_length=200)

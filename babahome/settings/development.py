@@ -20,5 +20,6 @@ DATABASES = {
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-# Media URL for development
-MEDIA_URL = 'http://localhost:8000/media/'
+# Media settings for development
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

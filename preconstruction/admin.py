@@ -6,7 +6,7 @@ from django import forms
 from django.db import models
 from preconstruction.models import (
     PreConstruction, Developer, City, PreConstructionImage, 
-    PreConstructionFloorPlans, FloorPlan, BlogPost
+    PreConstructionFloorPlans, FloorPlan, BlogPost, Feature, SampleAPS, Siteplan, FloorPlanDocs
 )
 from tinymce.widgets import TinyMCE
 from tinymce.models import HTMLField
@@ -99,13 +99,93 @@ class FloorPlanInline(admin.TabularInline):
             kwargs['widget'] = forms.ClearableFileInput(attrs={'accept': 'image/*'})
         return super().formfield_for_dbfield(db_field, request, **kwargs)
 
+class FeatureInline(admin.TabularInline):
+    model = Feature
+    extra = 1
+    fields = ('title', 'file', 'file_preview')
+    readonly_fields = ('file_preview',)
+    can_delete = True
+    show_change_link = True
+
+    def file_preview(self, obj):
+        if obj and obj.file:
+            file_extension = obj.file.name.split('.')[-1].lower()
+            if file_extension in ['jpg', 'jpeg', 'png', 'svg']:
+                return mark_safe(f'<img src="{obj.file.url}" style="max-height: 100px;"/>')
+            elif file_extension == 'pdf':
+                return mark_safe(f'<a href="{obj.file.url}" target="_blank" class="button">View PDF</a>')
+            else:
+                return mark_safe(f'<a href="{obj.file.url}" target="_blank" class="button">Download File</a>')
+        return ""
+    file_preview.short_description = 'Preview'
+
+class FloorPlanDocsInline(admin.TabularInline):
+    model = FloorPlanDocs
+    extra = 1
+    fields = ('title', 'file', 'file_preview')
+    readonly_fields = ('file_preview',)
+    can_delete = True
+    show_change_link = True
+
+    def file_preview(self, obj):
+        if obj and obj.file:
+            file_extension = obj.file.name.split('.')[-1].lower()
+            if file_extension in ['jpg', 'jpeg', 'png', 'svg']:
+                return mark_safe(f'<img src="{obj.file.url}" style="max-height: 100px;"/>')
+            elif file_extension == 'pdf':
+                return mark_safe(f'<a href="{obj.file.url}" target="_blank" class="button">View PDF</a>')
+            else:
+                return mark_safe(f'<a href="{obj.file.url}" target="_blank" class="button">Download File</a>')
+        return ""
+    file_preview.short_description = 'Preview'
+
+class SampleAPSInline(admin.TabularInline):
+    model = SampleAPS
+    extra = 1
+    fields = ('title', 'file', 'file_preview')
+    readonly_fields = ('file_preview',)
+    can_delete = True
+    show_change_link = True
+
+    def file_preview(self, obj):
+        if obj and obj.file:
+            file_extension = obj.file.name.split('.')[-1].lower()
+            if file_extension in ['jpg', 'jpeg', 'png', 'svg']:
+                return mark_safe(f'<img src="{obj.file.url}" style="max-height: 100px;"/>')
+            elif file_extension == 'pdf':
+                return mark_safe(f'<a href="{obj.file.url}" target="_blank" class="button">View PDF</a>')
+            else:
+                return mark_safe(f'<a href="{obj.file.url}" target="_blank" class="button">Download File</a>')
+        return ""
+    file_preview.short_description = 'Preview'
+
+class SiteplanInline(admin.TabularInline):
+    model = Siteplan
+    extra = 1
+    fields = ('title', 'file', 'file_preview')
+    readonly_fields = ('file_preview',)
+    can_delete = True
+    show_change_link = True
+
+    def file_preview(self, obj):
+        if obj and obj.file:
+            file_extension = obj.file.name.split('.')[-1].lower()
+            if file_extension in ['jpg', 'jpeg', 'png', 'svg']:
+                return mark_safe(f'<img src="{obj.file.url}" style="max-height: 100px;"/>')
+            elif file_extension == 'pdf':
+                return mark_safe(f'<a href="{obj.file.url}" target="_blank" class="button">View PDF</a>')
+            else:
+                return mark_safe(f'<a href="{obj.file.url}" target="_blank" class="button">Download File</a>')
+        return ""
+    file_preview.short_description = 'Preview'
+
 @admin.register(PreConstruction)
 class PreConstructionAdmin(ModelAdmin):
     list_display = ('project_name', 'status', 'project_type', 'developer', 'city', 
                    'is_featured', 'is_verified', 'created', 'main_image_preview')
     list_filter = ('status', 'project_type', 'developer', 'city', 'is_featured', 'is_verified')
     search_fields = ('project_name', 'description', 'project_address', 'postal_code')
-    inlines = [PreConstructionImageInline, FloorPlanInline]
+    inlines = [PreConstructionImageInline, FloorPlanInline, FeatureInline, FloorPlanDocsInline, SampleAPSInline, SiteplanInline]
     formfield_overrides = {
         HTMLField: {'widget': TinyMCE()},
     }
@@ -249,3 +329,83 @@ class BlogPostAdmin(ModelAdmin):
             return mark_safe(f'<img src="{obj.thumbnail.url}" style="max-height: 150px;"/>{delete_url}')
         return ""
     thumbnail_preview.short_description = "Thumbnail Preview"
+
+@admin.register(Feature)
+class FeatureAdmin(ModelAdmin):
+    list_display = ('title', 'preconstruction', 'file_preview', 'created_at')
+    list_filter = ('preconstruction', 'created_at')
+    search_fields = ('title', 'description', 'preconstruction__project_name')
+    fields = ('preconstruction', 'title', 'file', 'file_preview')
+    readonly_fields = ('file_preview', 'created_at', 'updated_at')
+
+    def file_preview(self, obj):
+        if obj.file:
+            file_extension = obj.file.name.split('.')[-1].lower()
+            if file_extension in ['jpg', 'jpeg', 'png', 'svg']:
+                return mark_safe(f'<img src="{obj.file.url}" style="max-height: 100px;"/>')
+            elif file_extension == 'pdf':
+                return mark_safe(f'<a href="{obj.file.url}" target="_blank" class="button">View PDF</a>')
+            else:
+                return mark_safe(f'<a href="{obj.file.url}" target="_blank" class="button">Download File</a>')
+        return ""
+    file_preview.short_description = 'File Preview'
+
+@admin.register(SampleAPS)
+class SampleAPSAdmin(ModelAdmin):
+    list_display = ('title', 'preconstruction', 'file_preview', 'created_at')
+    list_filter = ('preconstruction', 'created_at')
+    search_fields = ('title', 'description', 'preconstruction__project_name')
+    fields = ('preconstruction', 'title', 'file', 'file_preview')
+    readonly_fields = ('file_preview', 'created_at', 'updated_at')
+
+    def file_preview(self, obj):
+        if obj.file:
+            file_extension = obj.file.name.split('.')[-1].lower()
+            if file_extension in ['jpg', 'jpeg', 'png', 'svg']:
+                return mark_safe(f'<img src="{obj.file.url}" style="max-height: 100px;"/>')
+            elif file_extension == 'pdf':
+                return mark_safe(f'<a href="{obj.file.url}" target="_blank" class="button">View PDF</a>')
+            else:
+                return mark_safe(f'<a href="{obj.file.url}" target="_blank" class="button">Download File</a>')
+        return ""
+    file_preview.short_description = 'File Preview'
+
+@admin.register(Siteplan)
+class SiteplanAdmin(ModelAdmin):
+    list_display = ('title', 'preconstruction', 'file_preview', 'created_at')
+    list_filter = ('preconstruction', 'created_at')
+    search_fields = ('title', 'description', 'preconstruction__project_name')
+    fields = ('preconstruction', 'title', 'file', 'file_preview')
+    readonly_fields = ('file_preview', 'created_at', 'updated_at')
+
+    def file_preview(self, obj):
+        if obj.file:
+            file_extension = obj.file.name.split('.')[-1].lower()
+            if file_extension in ['jpg', 'jpeg', 'png', 'svg']:
+                return mark_safe(f'<img src="{obj.file.url}" style="max-height: 100px;"/>')
+            elif file_extension == 'pdf':
+                return mark_safe(f'<a href="{obj.file.url}" target="_blank" class="button">View PDF</a>')
+            else:
+                return mark_safe(f'<a href="{obj.file.url}" target="_blank" class="button">Download File</a>')
+        return ""
+    file_preview.short_description = 'File Preview'
+
+@admin.register(FloorPlanDocs)
+class FloorPlanDocsAdmin(ModelAdmin):
+    list_display = ('title', 'preconstruction', 'file_preview', 'created_at')
+    list_filter = ('preconstruction', 'created_at')
+    search_fields = ('title', 'description', 'preconstruction__project_name')
+    fields = ('preconstruction', 'title', 'file', 'file_preview')
+    readonly_fields = ('file_preview', 'created_at', 'updated_at')
+
+    def file_preview(self, obj):
+        if obj.file:
+            file_extension = obj.file.name.split('.')[-1].lower()
+            if file_extension in ['jpg', 'jpeg', 'png', 'svg']:
+                return mark_safe(f'<img src="{obj.file.url}" style="max-height: 100px;"/>')
+            elif file_extension == 'pdf':
+                return mark_safe(f'<a href="{obj.file.url}" target="_blank" class="button">View PDF</a>')
+            else:
+                return mark_safe(f'<a href="{obj.file.url}" target="_blank" class="button">Download File</a>')
+        return ""
+    file_preview.short_description = 'File Preview'
