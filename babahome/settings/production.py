@@ -25,6 +25,7 @@ DATABASES = {
         'PORT': '',
     }
 }
+CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
 
 # Secure cookies settings for production
 CSRF_COOKIE_SECURE = True
