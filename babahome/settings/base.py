@@ -16,10 +16,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Static files configuration
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "babahome", "static"),
-]
+STATICFILES_DIRS = []
+STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+
 
 INSTALLED_APPS = [
     "unfold",
