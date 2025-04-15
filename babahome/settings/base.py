@@ -171,12 +171,5 @@ TINYMCE_DEFAULT_CONFIG = {
 }
 
 TINYMCE_COMPRESSOR = False
-UNFOLD = {
-    "SITE_TITLE": "HOMEBABA",
-    "SITE_HEADER": "HOMEBABA",
-    "STYLES": [
-        "admin/css/custom_admin.css",
-    ],
-}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
