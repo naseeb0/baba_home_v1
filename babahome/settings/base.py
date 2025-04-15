@@ -177,5 +177,5 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 UNFOLD = {
     "SITE_HEADER": _("Homebaba Admin"),
     "SITE_TITLE": _("Homebaba Admin"),
-    "THEME": "dark",
+    "THEME": "light",
 }
