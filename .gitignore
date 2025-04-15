@@ -33,7 +33,6 @@ db.sqlite3
 /local_settings.py
 
 # Static and media files
-/static/
 /media/
 
 # Virtual environments

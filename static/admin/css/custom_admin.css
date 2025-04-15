@@ -1,0 +1,80 @@
+.tox.tox-tinymce {
+  width: 100% !important;
+  min-height: 500px !important;
+  border-radius: 8px !important;
+  border-color: var(--primary-200) !important;
+}
+
+/* Fix dark mode compatibility */
+.tox .tox-edit-area__iframe {
+  background-color: white !important;
+}
+
+.tox .tox-toolbar,
+.tox .tox-toolbar__primary,
+.tox .tox-toolbar__overflow {
+  background: var(--background-100) !important;
+  border-bottom: 1px solid var(--primary-200) !important;
+}
+
+.tox .tox-tbtn {
+  color: var(--primary-600) !important;
+}
+
+.tox .tox-tbtn:hover {
+  background-color: var(--primary-100) !important;
+}
+
+/* Make editor content more readable */
+.mce-content-body {
+  font-family: var(--font-family) !important;
+  font-size: 16px !important;
+  line-height: 1.6 !important;
+  padding: 1rem !important;
+}
+
+/* Improve spacing in form */
+.field-content {
+  margin-top: 1rem !important;
+  width: 100% !important;
+}
+
+/* Status bar styling */
+.tox .tox-statusbar {
+  border-top: 1px solid var(--primary-200) !important;
+  color: var(--primary-600) !important;
+}
+
+/* Fix button colors in toolbar */
+.tox .tox-tbtn svg {
+  fill: var(--primary-600) !important;
+}
+
+/* Enhanced dark mode support */
+[data-theme="dark"] .tox .tox-edit-area__iframe {
+  background-color: white !important;
+}
+
+[data-theme="dark"] .tox .tox-toolbar,
+[data-theme="dark"] .tox .tox-toolbar__primary,
+[data-theme="dark"] .tox .tox-toolbar__overflow {
+  background: var(--background-200) !important;
+}
+
+/* Improve dropdown menus */
+.tox .tox-menu {
+  border-radius: 6px !important;
+  border: 1px solid var(--primary-200) !important;
+}
+
+/* Fix dialog windows */
+.tox .tox-dialog {
+  border-radius: 8px !important;
+  border: 1px solid var(--primary-200) !important;
+}
+
+/* Better file upload button */
+.tox .tox-form__group .tox-button {
+  background-color: var(--primary-600) !important;
+  border-radius: 6px !important;
+}
