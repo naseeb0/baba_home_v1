@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 from datetime import timedelta
+from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -173,3 +174,9 @@ TINYMCE_DEFAULT_CONFIG = {
 TINYMCE_COMPRESSOR = False
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+UNFOLD = {
+    "SITE_HEADER": _("Homebaba Admin"),
+    "SITE_TITLE": _("Homebaba Admin"),
+    "THEME": "dark",
+}
