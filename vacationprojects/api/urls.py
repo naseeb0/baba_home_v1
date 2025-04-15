@@ -45,5 +45,4 @@ urlpatterns = [
     path('blog/by-location/', LocationBasedBlogPostsView.as_view(), name='blog-by-location'),
     path('blog/featured/', FeaturedBlogPostsView.as_view(), name='blog-featured'),
 
-
 ]
